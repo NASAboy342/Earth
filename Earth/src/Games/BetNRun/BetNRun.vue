@@ -1,101 +1,87 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import Phaser from "phaser";
+import { ImageHelper } from "../../Helpers/ImageHelper";
 
-onMounted(() => {
-  class GameScene extends Phaser.Scene {
-    private player!: Phaser.Physics.Arcade.Sprite;
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private cars!: Phaser.Physics.Arcade.Group;
-    private speed: number = 200;
+// 🎮 Define Phaser GameScene
+class GameScene extends Phaser.Scene {
+  private player!: Phaser.GameObjects.Sprite; // Player sprite reference
+  private playerSpeed: number = 2;
 
-    constructor() {
-      super({ key: "GameScene" });
-    }
+  constructor() {
+    super({ key: "GameScene" });
+  }
 
-    preload() {
-      this.load.image("chicken", "https://labs.phaser.io/assets/sprites/chicken.png");
-      this.load.image("car", "https://labs.phaser.io/assets/sprites/car-red.png");
-      this.load.image("road", "https://labs.phaser.io/assets/sprites/road.png");
-    }
-
-    create() {
-      // Background
-      this.add.image(400, 300, "road").setDisplaySize(800, 600);
-
-      // Player (Chicken)
-      this.player = this.physics.add.sprite(400, 550, "chicken").setScale(0.5);
-      this.player.setCollideWorldBounds(true);
-
-      // Cars (Obstacles)
-      this.cars = this.physics.add.group();
-      this.spawnCar();
-
-      // Input Handling
-      this.cursors = this.input.keyboard!.createCursorKeys();
-
-      // Collision Detection
-      this.physics.add.collider(this.player, this.cars, this.handleCollision, undefined, this);
-    }
-
-    update() {
-      if (this.cursors.up.isDown) {
-        this.player.setVelocityY(-this.speed);
-      } else if (this.cursors.down.isDown) {
-        this.player.setVelocityY(this.speed);
-      } else {
-        this.player.setVelocityY(0);
-      }
-
-      if (this.cursors.left.isDown) {
-        this.player.setVelocityX(-this.speed);
-      } else if (this.cursors.right.isDown) {
-        this.player.setVelocityX(this.speed);
-      } else {
-        this.player.setVelocityX(0);
-      }
-    }
-
-    spawnCar() {
-      const xPositions = [200, 400, 600];
-      const lane = Phaser.Math.RND.pick(xPositions);
-      const car = this.cars.create(lane, 0, "car").setScale(0.5);
-      car.setVelocityY(150);
-      car.setCollideWorldBounds(false);
-
-      this.time.delayedCall(1000, () => this.spawnCar());
-    }
-
-    handleCollision() {
-      this.physics.pause();
-      this.player.setTint(0xff0000);
-      console.log("Game Over!");
+  preload() {
+    this.load.image('BackgroundStart', new URL(`../../assets/Background.png`, import.meta.url).href)
+    // ✅ Dynamically load PNG sequence (0001.png to 0050.png)
+    for (let i = 1; i <= 50; i++) {
+      const frameNumber = i.toString().padStart(4, "0"); // Format to "0001", "0002", ...
+      this.load.image(`char_${frameNumber}`, new URL(`../../assets/PngSequences/StandingBird/${frameNumber}.png`, import.meta.url).href);
     }
   }
 
-  const gameConfig: Phaser.Types.Core.GameConfig = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    parent: "game-container",
-    physics: {
-      default: "arcade",
-      arcade: { debug: false },
-    },
-    scene: [GameScene],
-  };
+  create() {
+    // 🎬 Create animation from individual PNGs
+    const frames = [];
+    for (let i = 1; i <= 50; i++) {
+      const frameNumber = i.toString().padStart(4, "0");
+      frames.push({ key: `char_${frameNumber}` });
+    }
 
-  new Phaser.Game(gameConfig);
+    this.anims.create({
+      key: "birdStand",
+      frames: frames,
+      frameRate: 24, // Adjust speed (24 FPS is smooth)
+      repeat: -1, // Loop animation
+    });
+
+    const backgroundTexture = this.textures.get("BackgroundStart");
+    this.add.tileSprite(1250, 300, 0, 0,backgroundTexture).setDisplaySize(ImageHelper.GetRelatedWidth(600,backgroundTexture.getSourceImage().width, backgroundTexture.getSourceImage().height), 600); // Tiling background
+
+    // 🏃‍♂️ Add player and play animation
+    this.player = this.add.sprite(100, 445, "char_0001").setDisplaySize(230, 230).play("birdStand");
+  }
+
+  // update() {
+  //   // Move player to the right at the given speed
+  //   this.player.x += this.speed;
+
+  //   // If the player goes off the screen, reset its position
+  //   if (this.player.x > 800) {
+  //     this.player.x = 0;
+  //   }
+  // }
+}
+
+
+
+let game: Phaser.Game | null = null;
+
+onMounted(() => {
+  game = new Phaser.Game({
+    type: Phaser.AUTO,
+    width: 1000,
+    height: 600,
+    parent: "game-container", // Attach Phaser to div
+    scene: GameScene,
+  });
 });
+
+onUnmounted(() => {
+  game?.destroy(true); // Cleanup
+});
+
 </script>
 
 <template>
   <div id="game-container"></div>
+  <!-- <img src="../../assets/PngSequences/StandingBird/0001.png" alt=""> -->
 </template>
 
 <style scoped>
 #game-container {
-  width: 800px;
+  width: 1000px;
   height: 600px;
   margin: auto;
 }

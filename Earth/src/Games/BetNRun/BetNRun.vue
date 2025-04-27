@@ -43,15 +43,15 @@ class GameScene extends Phaser.Scene {
     this.player = this.add.sprite(100, 445, "char_0001").setDisplaySize(230, 230).play("birdStand");
   }
 
-  // update() {
-  //   // Move player to the right at the given speed
-  //   this.player.x += this.speed;
+  update() {
+    // Move player to the right at the given speed
+    this.player.x += this.playerSpeed;
 
-  //   // If the player goes off the screen, reset its position
-  //   if (this.player.x > 800) {
-  //     this.player.x = 0;
-  //   }
-  // }
+    // If the player goes off the screen, reset its position
+    if (this.player.x > 800) {
+      this.player.x = 0;
+    }
+  }
 }
 
 

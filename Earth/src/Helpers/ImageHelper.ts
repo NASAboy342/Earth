@@ -7,4 +7,7 @@ export class ImageHelper {
         let p	= desireHeight * 100 / originalHeight
         return  (p) * (originalWidth / 100)
     }
+    static GetImageURL(path: string): string {
+        return new URL(path, import.meta.url).href;
+    }
 }

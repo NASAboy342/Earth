@@ -30,11 +30,13 @@ import type { GameThumbnailInfo } from '../models/gameThumnailInfo';
 const thumnails = ref<GameThumbnailInfo[]>([
   {
     imgPath: new URL("../assets/GameThumnail/bet-n-run.png", import.meta.url).href,
-    route: "/bet-n-run",
+    route: "/bet-n-run2",
   },
   {
     imgPath: new URL("../assets/GameThumnail/lucky-drop.png", import.meta.url).href,
     route: "/lucky-drop",
   },
+  
+  
 ])
 </script>

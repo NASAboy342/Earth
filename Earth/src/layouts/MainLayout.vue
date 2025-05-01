@@ -34,7 +34,7 @@ watch(
       </nav>
     </header>
 
-    <main>
+    <main style="padding: 50px;">
       <router-view />
     </main>
   </div>

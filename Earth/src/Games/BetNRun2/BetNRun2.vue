@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import Phaser from "phaser";
 import { BetNRun2Service } from "../../Services/BetNRun2/BetNRun2Service";
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 import { ImageHelper } from "../../Helpers/ImageHelper";
+
+const gameContainer = ref<HTMLElement | null>(null);
 
 class GameScene extends Phaser.Scene {
   private betNRun2Service: BetNRun2Service;
@@ -14,6 +16,10 @@ class GameScene extends Phaser.Scene {
   
   loadTextures() {
     this.load.image(AssetKeyEnum.background, ImageHelper.GetImageURL("../assets/BetNRun2/Background.png"));
+    this.loadPlayerStandingAnimationTextures();
+  }
+  loadPlayerStandingAnimationTextures() {
+    ImageHelper.createAnimationFromPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
   }
   
   preload() {
@@ -23,10 +29,15 @@ class GameScene extends Phaser.Scene {
   create() {
     this.betNRun2Service = new BetNRun2Service(this);
     this.betNRun2Service.createBackground();
+    this.betNRun2Service.createPlayer();
   }
 
   update() {
     this.betNRun2Service.update();
+    this.keepCheckingGameViewWidth();
+  }
+  keepCheckingGameViewWidth() {
+    game?.scale.resize(gameContainer.value?.clientWidth ?? 1000, 600);
   }
 }
 
@@ -35,7 +46,7 @@ let game: Phaser.Game | null = null;
 onMounted(() => {
   game = new Phaser.Game({
     type: Phaser.AUTO,
-    width: window.innerWidth * 0.8,
+    width: gameContainer.value?.clientWidth ?? 1000,
     height: 600,
     parent: "game-container",
     scene: GameScene,
@@ -48,7 +59,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="game-container"></div>
+  <div id="game-container" ref="gameContainer"></div>
 </template>
 
 <style scoped>
@@ -56,5 +67,6 @@ onUnmounted(() => {
   width: 100%;
   height: 600px;
   margin: auto;
+  background-color: aquamarine;
 }
 </style>

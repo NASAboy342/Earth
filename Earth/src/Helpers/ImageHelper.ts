@@ -22,7 +22,7 @@ export class ImageHelper {
     scene: Phaser.Scene,
     framesPerSenond: number = 24
   ) {
-    let framesKey = this.getFrameKeys(key, frames);
+    let framesKey = this.getFrameKeys(key, frames, scene);
 
     scene.anims.create({
       key: key,
@@ -31,12 +31,11 @@ export class ImageHelper {
       repeat: -1, // Loop animation
     });
   }
-  static getFrameKeys(key: AssetKeyEnum, frames: number): any[] {
+  static getFrameKeys(key: AssetKeyEnum, frames: number, scene: Phaser.Scene): any[] {
     let framesKey = [];
-
     for (let i = 1; i <= frames; i++) {
       const frameNumber = this.getFrameNumber(i);
-      framesKey.push({ key: `${key}_${frameNumber}` });
+      framesKey.push({key:`${key}_${frameNumber}`});
     }
     return framesKey;
   }

@@ -19,7 +19,7 @@ class GameScene extends Phaser.Scene {
     this.loadPlayerStandingAnimationTextures();
   }
   loadPlayerStandingAnimationTextures() {
-    ImageHelper.createAnimationFromPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
+    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
   }
   
   preload() {
@@ -27,6 +27,8 @@ class GameScene extends Phaser.Scene {
   }
   
   create() {
+    ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.standingPlayer, 50, this);
+
     this.betNRun2Service = new BetNRun2Service(this);
     this.betNRun2Service.createBackground();
     this.betNRun2Service.createPlayer();

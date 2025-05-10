@@ -23,8 +23,18 @@ export class Player extends GameObjectBase {
     }
     moveIfNotOnTargetTile() {
         if (this.isNotOnTargetTile()){
-            this.x += this.Speed;
+            this.run();
         }
+        else{
+            this.stand();
+        }
+    }
+    stand() {
+        this.play(AssetKeyEnum.standingPlayer);
+    }
+    run() {
+        this.play(AssetKeyEnum.runningPlayer);
+        this.x += this.Speed;
     }
     isNotOnTargetTile(): boolean {
         return this.x < this.TargetTile;
@@ -33,7 +43,7 @@ export class Player extends GameObjectBase {
     override create() {
         this.setOrigin(0.5, 0);
         this.setScale(this.scaleX * this.ScaleMultiplier, this.scaleY * this.ScaleMultiplier);
-        this.play(AssetKeyEnum.standingPlayer);
+        this.stand();
         super.create();
     }
 

@@ -17,6 +17,10 @@ class GameScene extends Phaser.Scene {
   loadTextures() {
     this.load.image(AssetKeyEnum.background, ImageHelper.GetImageURL("../assets/BetNRun2/Background.png"));
     this.loadPlayerStandingAnimationTextures();
+    this.loadPlayerRunningAnimationTextures();
+  }
+  loadPlayerRunningAnimationTextures() {
+    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.runningPlayer, "../assets/BetNRun2/PngSequences/RunningBird", 50, this)
   }
   loadPlayerStandingAnimationTextures() {
     ImageHelper.loadPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
@@ -28,6 +32,7 @@ class GameScene extends Phaser.Scene {
   
   create() {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.standingPlayer, 50, this);
+    ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
 
     this.betNRun2Service = new BetNRun2Service(this);
     this.betNRun2Service.createBackground();

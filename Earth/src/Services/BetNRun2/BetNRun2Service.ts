@@ -1,4 +1,5 @@
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
+import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 import { ImageHelper } from "../../Helpers/ImageHelper";
 import { Background } from "../../models/BetNRun2/Background";
 import type { Crate } from "../../models/BetNRun2/Crate";
@@ -10,8 +11,8 @@ export class BetNRun2Service {
   private player: Player;
   private crates: Crate[];
   spaceKey: Phaser.Input.Keyboard.Key;
-  gameStep: number = 0;
-  game
+  gameStep: GameStepEnum = GameStepEnum.start;
+  gamePreviousStep: GameStepEnum = GameStepEnum.none;
   
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -24,6 +25,7 @@ export class BetNRun2Service {
   update() {
     if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
       console.log("Space key pressed!");
+      this.
       this.movePlayerToNextPosition();
     }
     this.player.update();

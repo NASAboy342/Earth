@@ -4,6 +4,7 @@ export class Background extends GameObjectBase {
     BackgroundX: number = 0;
     BackgroundY: number = 0;
     SclaleMultiplier = 0.85;
+    groundY: number = 567;
     constructor (scene: Phaser.Scene, texture: Phaser.Textures.Texture) {
         super(
             scene,

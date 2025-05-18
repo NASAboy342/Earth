@@ -1,4 +1,5 @@
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
+import type { Background } from "./Background";
 import { GameObjectBase } from "./GameObjectBase";
 
 export class Player extends GameObjectBase {
@@ -8,13 +9,15 @@ export class Player extends GameObjectBase {
     TileSize: number = 235;
     TargetTile: number = this.PlayerInitX;
     Speed: number = 3;
-    constructor (scene: Phaser.Scene, texture: Phaser.Textures.Texture) {
+    private background: Background;
+    constructor (scene: Phaser.Scene, background: Background, texture: Phaser.Textures.Texture) {
         super(
             scene,
             texture
         );
+        this.background = background;
         this.x = this.PlayerInitX;
-        this.y = this.PlayerInitY;
+        this.y = this.background.groundY;
     }
 
     override update(...args: any[]): void {
@@ -39,9 +42,12 @@ export class Player extends GameObjectBase {
     isNotOnTargetTile(): boolean {
         return this.x < this.TargetTile;
     }
+    isOnTargetTile(): boolean {
+        return this.x >= this.TargetTile;
+    }
 
     override create() {
-        this.setOrigin(0.5, 0);
+        this.setOrigin(0.5, 1);
         this.setScale(this.scaleX * this.ScaleMultiplier, this.scaleY * this.ScaleMultiplier);
         this.stand();
         super.create();

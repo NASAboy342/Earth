@@ -67,7 +67,6 @@ export class BetNRun2Service {
       this.crates.push(crate);
       crate.create();
       this.isCrateOnPlayerSpawned = true;
-      console.log("Crate already spawned on player");
     }
   }
   settleGameWin() {

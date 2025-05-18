@@ -26,7 +26,7 @@ export class Crate extends GameObjectBase {
     fallIfNotOnGround() {
         if(!this.isOnGround()){
             this.y += this.fallSpeed;
-            this.fallSpeed += 0.1;
+            this.fallSpeed += 0.3;
         }
         else{
             this.y = this.background.groundY;

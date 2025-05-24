@@ -5,6 +5,7 @@ import { Background } from "../../models/BetNRun2/Background";
 import { Crate, CrateTypeEnum } from "../../models/BetNRun2/Crate";
 import { Player } from "../../models/BetNRun2/Player";
 import { BinaryResultService } from "../BinaryResultService";
+import { ClockService } from "../ClockService";
 
 export class BetNRun2Service {
   private scene: Phaser.Scene;
@@ -16,27 +17,59 @@ export class BetNRun2Service {
   gamePreviousStep: GameStepEnum = GameStepEnum.none;
   binaryResultService: BinaryResultService;
   isCrateOnPlayerSpawned: boolean = false;
+  clockService: ClockService;
+  isRestartGameClockStarted: boolean = false;
+  restartGameClockStartAt: number = 0;
+  restartGameInSecond: number = 5;
   
   constructor(scene: Phaser.Scene) {
+    this.clockService = new ClockService();
     this.scene = scene;
     this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.background));
-    this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)));
+    this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService);
     this.crates = [];
     this.binaryResultService = new BinaryResultService();
     
     this.spaceKey = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
   update() {
+    this.clockService.Tick();
     this.awaitForBet();
     if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
       this.raiseBet();
       this.placeBet();
+      this.proceedRestartGame();
     }
     this.settleBet();
     this.settleGameLose();
     this.settleGameWin();
+    this.gameOver();
     this.player.update();
     this.crates.forEach(crate => crate.update());
+  }
+  destroyGameObjects() {
+    this.player.destroy(true);
+    this.background.destroy(true);
+    this.crates.forEach(crate => crate.destroy(true));
+  }
+  proceedRestartGame() {
+    if(this.gameStep === GameStepEnum.gameOver){
+      this.gameStep = GameStepEnum.proceedStartNewGame;
+    }
+  }
+  gameOver() {
+    if(this.gameStep === GameStepEnum.gameOver){
+      if(!this.isRestartGameClockStarted){
+        this.restartGameClockStartAt = this.clockService.TimeSpentInSeconds
+        this.isRestartGameClockStarted = true;
+      }
+      if(this.timeToRestartGame()){
+        this.proceedRestartGame();
+      }
+    }
+  }
+  timeToRestartGame(): boolean {
+    return this.clockService.TimeSpentInSeconds - this.restartGameClockStartAt >= this.restartGameInSecond;
   }
   settleBet() {
     if(this.gameStep === GameStepEnum.settlingBet){
@@ -62,7 +95,7 @@ export class BetNRun2Service {
   }
   spawnCrateOnPlayer(playerX: number, playerY: number) {
     if(!this.isCrateOnPlayerSpawned){
-      let crate = new Crate(this.scene, this.background, CrateTypeEnum[CrateTypeEnum.spawnOnPlayer], this.scene.textures.get(AssetKeyEnum.crate));
+      let crate = new Crate(this.scene, this.background, CrateTypeEnum[CrateTypeEnum.spawnOnPlayer], this.scene.textures.get(AssetKeyEnum.crate), this.clockService);
       crate.x = playerX;
       this.crates.push(crate);
       crate.create();

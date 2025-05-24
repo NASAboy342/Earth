@@ -9,4 +9,5 @@ export enum GameStepEnum {
     cashingOut,
     cashOut,
     gameOver,
+    proceedStartNewGame
 }

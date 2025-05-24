@@ -1,6 +1,7 @@
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 import type { Background } from "./Background";
 import { GameObjectBase } from "./GameObjectBase";
+import { ClockService } from "../../Services/ClockService";
 
 export class Player extends GameObjectBase {
     PlayerInitX: number = 120;
@@ -8,9 +9,10 @@ export class Player extends GameObjectBase {
     ScaleMultiplier: number = 0.2;
     TileSize: number = 235;
     TargetTile: number = this.PlayerInitX;
-    Speed: number = 3;
+    Speed: number = 4;
     private background: Background;
-    constructor (scene: Phaser.Scene, background: Background, texture: Phaser.Textures.Texture) {
+    clockService: ClockService;
+    constructor (scene: Phaser.Scene, background: Background, texture: Phaser.Textures.Texture, clockService: ClockService) {
         super(
             scene,
             texture
@@ -18,6 +20,7 @@ export class Player extends GameObjectBase {
         this.background = background;
         this.x = this.PlayerInitX;
         this.y = this.background.groundY;
+        this.clockService = clockService;
     }
 
     override update(...args: any[]): void {
@@ -37,7 +40,7 @@ export class Player extends GameObjectBase {
     }
     run() {
         this.play(AssetKeyEnum.runningPlayer);
-        this.x += this.Speed;
+        this.x += this.Speed * this.clockService.deltaTimeInCentiseconds;
     }
     isNotOnTargetTile(): boolean {
         return this.x < this.TargetTile;

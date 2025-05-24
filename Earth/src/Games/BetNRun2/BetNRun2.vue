@@ -4,6 +4,7 @@ import Phaser from "phaser";
 import { BetNRun2Service } from "../../Services/BetNRun2/BetNRun2Service";
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 import { ImageHelper } from "../../Helpers/ImageHelper";
+import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 
 const gameContainer = ref<HTMLElement | null>(null);
 
@@ -35,14 +36,28 @@ class GameScene extends Phaser.Scene {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.standingPlayer, 50, this);
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
 
-    this.betNRun2Service = new BetNRun2Service(this);
-    this.betNRun2Service.createBackground();
-    this.betNRun2Service.createPlayer();
+    this.startNewGame();
   }
 
   update() {
     this.betNRun2Service.update();
+    this.checkIfToRestartGame();
     this.keepCheckingGameViewWidth();
+  }
+  checkIfToRestartGame() {
+    if (this.betNRun2Service.gameStep === GameStepEnum.proceedStartNewGame){
+      this.destroyOldGame();
+      this.startNewGame();
+    }
+  }
+  startNewGame() {
+    this.betNRun2Service = new BetNRun2Service(this);
+    this.betNRun2Service.createBackground();
+    this.betNRun2Service.createPlayer();
+  }
+  destroyOldGame() {
+    this.betNRun2Service.destroyGameObjects();
+    this.betNRun2Service = null;
   }
   keepCheckingGameViewWidth() {
     game?.scale.resize(gameContainer.value?.clientWidth ?? 1000, 600);

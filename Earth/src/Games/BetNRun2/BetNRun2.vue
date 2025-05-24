@@ -7,25 +7,18 @@ import { ImageHelper } from "../../Helpers/ImageHelper";
 import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 
 const gameContainer = ref<HTMLElement | null>(null);
+const gameStep = ref<GameStepEnum>();
+const isGameButtonPress = ref<boolean>(false);
+
+const PressGameButton = () => {
+  isGameButtonPress.value = true;
+}
 
 class GameScene extends Phaser.Scene {
   private betNRun2Service: BetNRun2Service;
 
   constructor() {
     super({ key: "GameScene" });
-  }
-  
-  loadTextures() {
-    this.load.image(AssetKeyEnum.background, ImageHelper.GetImageURL("../assets/BetNRun2/Background.png"));
-    this.loadPlayerStandingAnimationTextures();
-    this.loadPlayerRunningAnimationTextures();
-    this.load.image(AssetKeyEnum.crate, ImageHelper.GetImageURL("../assets/BetNRun2/crate.png"))
-  }
-  loadPlayerRunningAnimationTextures() {
-    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.runningPlayer, "../assets/BetNRun2/PngSequences/RunningBird", 50, this)
-  }
-  loadPlayerStandingAnimationTextures() {
-    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
   }
   
   preload() {
@@ -40,10 +33,39 @@ class GameScene extends Phaser.Scene {
   }
 
   update() {
+    this.listenForUIButtonPress();
     this.betNRun2Service.update();
     this.checkIfToRestartGame();
     this.keepCheckingGameViewWidth();
+    this.updateViewData();
   }
+  listenForUIButtonPress() {
+    if(isGameButtonPress.value === true){
+      this.betNRun2Service.proceedGameButton();
+      this.resetUIButton();
+    }
+    
+  }
+  resetUIButton() {
+    isGameButtonPress.value = false;
+  }
+  updateViewData() {
+    gameStep.value = this.betNRun2Service.gameStep;
+  }
+
+  loadTextures() {
+    this.load.image(AssetKeyEnum.background, ImageHelper.GetImageURL("../assets/BetNRun2/Background.png"));
+    this.loadPlayerStandingAnimationTextures();
+    this.loadPlayerRunningAnimationTextures();
+    this.load.image(AssetKeyEnum.crate, ImageHelper.GetImageURL("../assets/BetNRun2/crate.png"))
+  }
+  loadPlayerRunningAnimationTextures() {
+    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.runningPlayer, "../assets/BetNRun2/PngSequences/RunningBird", 50, this)
+  }
+  loadPlayerStandingAnimationTextures() {
+    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
+  }
+  
   checkIfToRestartGame() {
     if (this.betNRun2Service.gameStep === GameStepEnum.proceedStartNewGame){
       this.destroyOldGame();
@@ -62,6 +84,7 @@ class GameScene extends Phaser.Scene {
   keepCheckingGameViewWidth() {
     game?.scale.resize(gameContainer.value?.clientWidth ?? 1000, 600);
   }
+  
 }
 
 let game: Phaser.Game | null = null;
@@ -82,7 +105,29 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="game-container" ref="gameContainer"></div>
+  <div>
+    <div id="game-container" ref="gameContainer"></div>
+    <div class="game-control-panel">
+      <div class="bet-amount-containner">
+        <div class="label">Bet amount</div>
+        <div class="bet-amount game-control-component">
+          <span>$</span> 
+          <span>0</span>
+        </div>
+      </div>
+      <div class="difficalty-containner">
+        <div class="label">Difficalty</div>
+        <div class="difficalty game-control-component"></div>
+      </div>
+      <div class="game-button-containner">
+        <div class="label"></div>
+        <div v-if="gameStep === GameStepEnum.awaitingBet" class="start-game-button game-button" @click="PressGameButton()">Start Game</div>
+        <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" class="start-game-button game-button" @click="PressGameButton()">Raise Bet</div>
+        <div v-else-if="gameStep === GameStepEnum.gameOver" class="start-game-button game-button" @click="PressGameButton()">Restart Game</div>
+        <div v-else class="start-game-button game-button">Raise Bet</div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -91,5 +136,45 @@ onUnmounted(() => {
   height: 600px;
   margin: auto;
   background-color: aquamarine;
+}
+.game-control-panel{
+  width: 100%;
+  height: 150px;
+  background-color: var(--game-controller-background-color);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px;
+}
+.bet-amount-containner{
+  
+}
+.bet-amount{
+  width: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+.difficalty-containner{
+  
+}
+.difficalty{
+  width: 400px;
+}
+.game-button-containner{
+
+}
+.start-game-button{
+  width: 400px;
+}
+.label{
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
 }
 </style>

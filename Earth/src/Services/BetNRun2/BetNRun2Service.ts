@@ -36,9 +36,7 @@ export class BetNRun2Service {
     this.clockService.Tick();
     this.awaitForBet();
     if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-      this.raiseBet();
-      this.placeBet();
-      this.proceedRestartGame();
+      this.proceedGameButton();
     }
     this.settleBet();
     this.settleGameLose();
@@ -46,6 +44,11 @@ export class BetNRun2Service {
     this.gameOver();
     this.player.update();
     this.crates.forEach(crate => crate.update());
+  }
+  proceedGameButton() {
+    this.raiseBet();
+    this.placeBet();
+    this.proceedRestartGame();
   }
   destroyGameObjects() {
     this.player.destroy(true);

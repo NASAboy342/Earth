@@ -57,6 +57,6 @@ nav a {
 }
 
 nav a.router-link-active {
-  color: yellow;
+  color: var(--active-color);
 }
 </style>

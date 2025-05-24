@@ -13,8 +13,43 @@
   -moz-osx-font-smoothing: grayscale;
 
   --hover-border-color: #646cff;
+  --game-controller-background-color: #646cff; 
+  --background-color: #242424;
+  --game-controller-border-color: #ffffff;
+  --active-color: yellow;
+  --active-color-side: orange;
 }
-
+.game-button{
+  border-radius: 15px;
+  min-width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 900;
+  font-size: 26px;
+  background-color: var(--active-color);
+  box-shadow: 0px 4px 0px var(--active-color-side);
+  text-shadow: 0px 3px 1px var(--active-color-side);
+  -webkit-text-stroke: 1px var(--active-color-side);
+  cursor: pointer;
+  user-select: none;
+}
+.game-button:hover{
+  box-shadow: 0px 2px 8px 2px var(--active-color);
+}
+.game-button:active{
+  background-color: var(--active-color-side);
+  box-shadow: inset 0px 3px 5px var(--background-color);
+  font-size: 24px;
+}
+.game-control-component{
+  background-color: var(--background-color);
+  min-width: 50px;
+  height: 50px;
+  border: 3px solid var(--game-controller-border-color);
+  border-radius: 15px;
+}
 a {
   font-weight: 500;
   color: #646cff;

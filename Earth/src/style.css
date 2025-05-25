@@ -18,6 +18,8 @@
   --game-controller-border-color: #ffffff;
   --active-color: yellow;
   --active-color-side: orange;
+  --sub-active-color: #ffffff;
+  --sub-active-color-side: #dfdfdf;
 }
 .game-button{
   border-radius: 15px;
@@ -42,6 +44,30 @@
   background-color: var(--active-color-side);
   box-shadow: inset 0px 3px 5px var(--background-color);
   font-size: 24px;
+}
+.game-sub-button{
+  background-color: var(--sub-active-color);
+  box-shadow: 0px 4px 0px var(--sub-active-color-side);
+  min-width: 50px;
+  height: 35px;
+  margin-bottom: 5px;
+  border-radius: 14px;
+  color: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  padding: unset;
+  cursor: pointer;
+  user-select: none;
+}
+.game-sub-button:hover{
+  box-shadow: 0px 5px 0px var(--sub-active-color-side);
+  margin-bottom: 6px;
+}
+.game-sub-button:active{
+  box-shadow: inset 0px 0px 3px var(--background-color);
+  margin-bottom: 0px;
 }
 .game-control-component{
   background-color: var(--background-color);

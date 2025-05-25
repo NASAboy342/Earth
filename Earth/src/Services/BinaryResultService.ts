@@ -1,9 +1,15 @@
 export class BinaryResultService{
     private results: boolean[] = [];
-    winRate: number = 0.9;
+    winRate: number = 50;
+    stakeMultiplyRate: number = 4;
+    stakeMultiplier: 0;
+
 
     getResult():boolean{
-        let isWin = Phaser.Math.Between(0,1) < this.winRate;
+        let isWin = this.winRate > Phaser.Math.Between(0,100);
+        if(isWin){
+            this.stakeMultiplier += 1;
+        }
         this.results.push(isWin);
         return isWin;
     }

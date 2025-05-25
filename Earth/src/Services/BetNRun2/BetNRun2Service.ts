@@ -6,8 +6,10 @@ import { Crate, CrateTypeEnum } from "../../models/BetNRun2/Crate";
 import { Player } from "../../models/BetNRun2/Player";
 import { BinaryResultService } from "../BinaryResultService";
 import { ClockService } from "../ClockService";
+import type { PlayerService } from "../PlayerService";
 
 export class BetNRun2Service {
+  
   private scene: Phaser.Scene;
   private background: Background;
   private player: Player;
@@ -21,14 +23,17 @@ export class BetNRun2Service {
   isRestartGameClockStarted: boolean = false;
   restartGameClockStartAt: number = 0;
   restartGameInSecond: number = 5;
+  playerService: PlayerService;
+
   
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, playerService: PlayerService) {
     this.clockService = new ClockService();
     this.scene = scene;
     this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.background));
     this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService);
     this.crates = [];
     this.binaryResultService = new BinaryResultService();
+    this.playerService = playerService;
     
     this.spaceKey = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
@@ -42,8 +47,37 @@ export class BetNRun2Service {
     this.settleGameLose();
     this.settleGameWin();
     this.gameOver();
+    this.cashingOut();
+    this.cashOut();
     this.player.update();
     this.crates.forEach(crate => crate.update());
+  }
+  cashOut() {
+    if(this.gameStep === GameStepEnum.cashOut){
+      this.playerService.settle(this.playerService.stake * (this.binaryResultService.stakeMultiplier * this.binaryResultService.stakeMultiplyRate));
+      this.setNextGameStep(GameStepEnum.proceedStartNewGame);
+    }
+  }
+  cashingOut() {
+    if(this.gameStep === GameStepEnum.cashingOut){
+      this.setNextGameStep(GameStepEnum.cashOut);
+    }
+  }
+  minusStake() {
+    if(this.gameStep === GameStepEnum.awaitingBet && this.playerService.stake >= 0){
+      this.playerService.stake -=  Phaser.Math.RoundTo(this.playerService.stake * 0.5, -2);
+    }
+  }
+  addStake() {
+    if(this.gameStep === GameStepEnum.awaitingBet){
+      console.log(Phaser.Math.RoundTo((this.playerService.stake === 0 ? 1 : this.playerService.stake) * 0.5, -2));
+      this.playerService.stake += Phaser.Math.RoundTo((this.playerService.stake === 0 ? 1 : this.playerService.stake) * 0.5, -2);
+    }
+  }
+  proceedCashOut() {
+    if(this.gameStep === GameStepEnum.awaitingRaiseBet){
+      this.setNextGameStep(GameStepEnum.cashingOut)
+    }
   }
   proceedGameButton() {
     this.raiseBet();
@@ -67,6 +101,7 @@ export class BetNRun2Service {
         this.isRestartGameClockStarted = true;
       }
       if(this.timeToRestartGame()){
+        this.playerService.settle(-this.playerService.stake);
         this.proceedRestartGame();
       }
     }
@@ -112,6 +147,7 @@ export class BetNRun2Service {
   }
   placeBet() {
     if(this.gameStep === GameStepEnum.awaitingBet){
+      this.playerService.deduct(this.playerService.stake);
       this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
     }
   }

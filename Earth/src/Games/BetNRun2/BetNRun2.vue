@@ -5,17 +5,34 @@ import { BetNRun2Service } from "../../Services/BetNRun2/BetNRun2Service";
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 import { ImageHelper } from "../../Helpers/ImageHelper";
 import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
+import { PlayerInfo } from "../../models/PlayerInfo";
+import { PlayerService } from "../../Services/PlayerService";
 
 const gameContainer = ref<HTMLElement | null>(null);
 const gameStep = ref<GameStepEnum>();
 const isGameButtonPress = ref<boolean>(false);
+const isCashOutButtonPress = ref<boolean>(false);
+const playerInfo = ref<PlayerInfo>();
+const stake = ref<number>(0);
+const isAddStakeButtonPress = ref<boolean>(false);
+const isMinusStakeButtonPress = ref<boolean>(false);
 
 const PressGameButton = () => {
   isGameButtonPress.value = true;
 }
+const PressCashOutButton = () => {
+  isCashOutButtonPress.value = true;
+}
+const PressAddStakeButton = () => {
+  isAddStakeButtonPress.value = true;
+}
+const PressMinusStakeButton = () => {
+  isMinusStakeButtonPress.value = true;
+}
 
 class GameScene extends Phaser.Scene {
   private betNRun2Service: BetNRun2Service;
+  private playerService: PlayerService;
 
   constructor() {
     super({ key: "GameScene" });
@@ -28,7 +45,7 @@ class GameScene extends Phaser.Scene {
   create() {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.standingPlayer, 50, this);
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
-
+    this.playerService = new PlayerService();
     this.startNewGame();
   }
 
@@ -42,15 +59,28 @@ class GameScene extends Phaser.Scene {
   listenForUIButtonPress() {
     if(isGameButtonPress.value === true){
       this.betNRun2Service.proceedGameButton();
-      this.resetUIButton();
     }
-    
+    if(isCashOutButtonPress.value){
+      this.betNRun2Service.proceedCashOut();
+    }
+    if(isAddStakeButtonPress.value){
+      this.betNRun2Service.addStake();
+    }
+    if(isMinusStakeButtonPress.value){
+      this.betNRun2Service.minusStake();
+    }
+    this.resetUIButton();
   }
   resetUIButton() {
     isGameButtonPress.value = false;
+    isCashOutButtonPress.value = false;
+    isAddStakeButtonPress.value = false;
+    isMinusStakeButtonPress.value = false;
   }
   updateViewData() {
     gameStep.value = this.betNRun2Service.gameStep;
+    playerInfo.value = this.playerService.playerInfo;
+    stake.value = this.playerService.stake;
   }
 
   loadTextures() {
@@ -73,7 +103,7 @@ class GameScene extends Phaser.Scene {
     }
   }
   startNewGame() {
-    this.betNRun2Service = new BetNRun2Service(this);
+    this.betNRun2Service = new BetNRun2Service(this, this.playerService);
     this.betNRun2Service.createBackground();
     this.betNRun2Service.createPlayer();
   }
@@ -112,8 +142,14 @@ onUnmounted(() => {
         <div class="bet-amount-containner">
         <div class="label">Bet amount</div>
         <div class="bet-amount game-control-component">
-          <span>$</span> 
-          <span>0</span>
+          <div class="bet-amount-number-section">
+            <span>{{ playerInfo?.currency + " "}}</span> 
+            <span>{{ stake }}</span>
+          </div>
+          <div class="stake-adjustment-containner">
+            <div class="stake-adjustment game-sub-button" @click="PressAddStakeButton()" >+</div>
+            <div class="stake-adjustment game-sub-button" @click="PressMinusStakeButton()">-</div>
+          </div>
         </div>
       </div>
       <div class="difficalty-containner">
@@ -121,18 +157,19 @@ onUnmounted(() => {
         <div class="difficalty game-control-component"></div>
       </div>
       <div class="game-button-containner">
-        <div class="label"></div>
         <div v-if="gameStep === GameStepEnum.awaitingBet" class="start-game-button game-button" @click="PressGameButton()">Start Game</div>
         <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" class="start-game-button game-button" @click="PressGameButton()">Raise Bet</div>
         <div v-else-if="gameStep === GameStepEnum.gameOver" class="start-game-button game-button" @click="PressGameButton()">Restart Game</div>
         <div v-else class="start-game-button game-button">Raise Bet</div>
+        <div v-if="gameStep === GameStepEnum.awaitingRaiseBet" class="cash-out-button game-button" @click="PressCashOutButton()">Cash Out</div>
+        <div v-else class="cash-out-button game-button"></div>
       </div>
       </div>
       <div class="game-control-panel-lower-section">
         <div></div>
         <div class="balence-containner">
           <div class="label">Balence:</div>
-          <div class="balence"> <span>$</span> <span>1000</span> </div>
+          <div class="balence"> <span>{{ playerInfo?.currency }}</span> <span>{{ playerInfo?.balance }}</span> </div>
         </div>
       </div>
     </div>
@@ -164,7 +201,7 @@ onUnmounted(() => {
   width: 400px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   font-size: 24px;
   font-weight: bold;
 }
@@ -175,7 +212,10 @@ onUnmounted(() => {
   width: 400px;
 }
 .game-button-containner{
-
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: end;
 }
 .start-game-button{
   width: 400px;
@@ -211,5 +251,21 @@ onUnmounted(() => {
   gap: 10px;
   justify-content: center;
   align-items: center;
+}
+.cash-out-button{
+  width: 200px;
+  height: 30px;
+}
+.stake-adjustment{
+}
+.stake-adjustment-containner{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding-right: 2px;
+}
+.bet-amount-number-section{
+  width: 100%;
 }
 </style>

@@ -108,7 +108,8 @@ onUnmounted(() => {
   <div>
     <div id="game-container" ref="gameContainer"></div>
     <div class="game-control-panel">
-      <div class="bet-amount-containner">
+      <div class="game-control-panel-upper-section">
+        <div class="bet-amount-containner">
         <div class="label">Bet amount</div>
         <div class="bet-amount game-control-component">
           <span>$</span> 
@@ -126,6 +127,14 @@ onUnmounted(() => {
         <div v-else-if="gameStep === GameStepEnum.gameOver" class="start-game-button game-button" @click="PressGameButton()">Restart Game</div>
         <div v-else class="start-game-button game-button">Raise Bet</div>
       </div>
+      </div>
+      <div class="game-control-panel-lower-section">
+        <div></div>
+        <div class="balence-containner">
+          <div class="label">Balence:</div>
+          <div class="balence"> <span>$</span> <span>1000</span> </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -142,10 +151,11 @@ onUnmounted(() => {
   height: 150px;
   background-color: var(--game-controller-background-color);
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: 10px 30px;
+  border-radius: 0px 0px 10px 10px;
 }
 .bet-amount-containner{
   
@@ -176,5 +186,30 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   font-weight: bold;
+}
+.game-control-panel-upper-section{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+.game-control-panel-lower-section{
+  height: 30px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.balence{
+  font-weight: bold;
+}
+.balence-containner{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -34,7 +34,7 @@ watch(
       </nav>
     </header>
 
-    <main style="padding: 50px;">
+    <main class="main">
       <router-view />
     </main>
   </div>
@@ -58,5 +58,9 @@ nav a {
 
 nav a.router-link-active {
   color: var(--active-color);
+}
+.main{
+  padding: 50px;
+  border-radius: 10px;
 }
 </style>

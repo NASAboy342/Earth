@@ -4,6 +4,7 @@ import { ImageHelper } from "../../Helpers/ImageHelper";
 import { Background } from "../../models/BetNRun2/Background";
 import { Crate, CrateTypeEnum } from "../../models/BetNRun2/Crate";
 import { Player } from "../../models/BetNRun2/Player";
+import { Tiles } from "../../models/BetNRun2/Tiles";
 import { BinaryResultService } from "../BinaryResultService";
 import { ClockService } from "../ClockService";
 import type { PlayerService } from "../PlayerService";
@@ -12,6 +13,7 @@ export class BetNRun2Service {
   
   private scene: Phaser.Scene;
   private background: Background;
+  private tiles: Tiles[] = [];
   private player: Player;
   private crates: Crate[];
   spaceKey: Phaser.Input.Keyboard.Key;
@@ -29,8 +31,12 @@ export class BetNRun2Service {
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
     this.clockService = new ClockService();
     this.scene = scene;
-    this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.background));
-    this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService);
+    this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.dayBackground));
+    var fistTile = new Tiles(this.scene, this.scene.textures.get(AssetKeyEnum.backgroundMainHouse), 0, this.scene.cameras.main.height);
+    var secondTile = new Tiles(this.scene, this.scene.textures.get(AssetKeyEnum.backgroundfirstWall), fistTile.getTileWidth(), this.scene.cameras.main.height);
+    this.tiles.push(fistTile);
+    this.tiles.push(secondTile);
+    this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService, this.tiles);
     this.crates = [];
     this.binaryResultService = new BinaryResultService();
     this.playerService = playerService;
@@ -173,6 +179,29 @@ export class BetNRun2Service {
   
   createBackground() {
     this.background.create();
+    this.generateTiles();
+  }
+  generateTiles() {
+    for (let i = 0; i < 15; i++){
+      let previousTile = this.tiles[this.tiles.length - 1];
+      let nextTile = new Tiles(this.scene, this.scene.textures.get(this.getRandomWallType()), previousTile.x + previousTile.getTileWidth(), this.scene.cameras.main.height);
+      this.tiles.push(nextTile);
+    }
+
+    this.tiles.forEach(tile => tile.create());
+  }
+  getRandomWallType(): string | Phaser.Textures.Texture | Phaser.Textures.Frame {
+    var randomWallType = Phaser.Math.Between(1, 3);
+    switch (randomWallType) {
+      case 1:
+        return AssetKeyEnum.backgroundWall1;
+      case 2:
+        return AssetKeyEnum.backgroundWall2;
+      case 3:
+        return AssetKeyEnum.backgroundWall3;
+      default:
+        return AssetKeyEnum.backgroundWall3;
+    }
   }
   
   createPlayer() {

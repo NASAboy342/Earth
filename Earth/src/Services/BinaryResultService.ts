@@ -1,6 +1,6 @@
 export class BinaryResultService{
     private results: boolean[] = [];
-    winRate: number = 50;
+    winRate: number = 80;
     stakeMultiplyRate: number = 4;
     stakeMultiplier: 0;
 

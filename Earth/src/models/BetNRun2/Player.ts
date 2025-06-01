@@ -2,17 +2,20 @@ import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 import type { Background } from "./Background";
 import { GameObjectBase } from "./GameObjectBase";
 import { ClockService } from "../../Services/ClockService";
+import { Tiles } from "./Tiles";
 
 export class Player extends GameObjectBase {
     PlayerInitX: number = 120;
     PlayerInitY: number = 350;
     ScaleMultiplier: number = 0.2;
     TileSize: number = 235;
-    TargetTile: number = this.PlayerInitX;
+    TargetTile: Tiles;
     Speed: number = 4;
+    tiles: Tiles[] = [];
+    currentTileIndex = 0;
     private background: Background;
     clockService: ClockService;
-    constructor (scene: Phaser.Scene, background: Background, texture: Phaser.Textures.Texture, clockService: ClockService) {
+    constructor (scene: Phaser.Scene, background: Background, texture: Phaser.Textures.Texture, clockService: ClockService, tiles: Tiles[]) {
         super(
             scene,
             texture
@@ -21,6 +24,8 @@ export class Player extends GameObjectBase {
         this.x = this.PlayerInitX;
         this.y = this.background.groundY;
         this.clockService = clockService;
+        this.tiles = tiles;
+        this.TargetTile = this.tiles[this.currentTileIndex];
     }
 
     override update(...args: any[]): void {
@@ -43,10 +48,10 @@ export class Player extends GameObjectBase {
         this.x += this.Speed * this.clockService.deltaTimeInCentiseconds;
     }
     isNotOnTargetTile(): boolean {
-        return this.x < this.TargetTile;
+        return this.x < this.TargetTile.getMidTileX();
     }
     isOnTargetTile(): boolean {
-        return this.x >= this.TargetTile;
+        return this.x >= this.TargetTile.getMidTileX();
     }
 
     override create() {
@@ -58,7 +63,8 @@ export class Player extends GameObjectBase {
 
     moveToNextTile(tiles: number) {
         if (!this.isNotOnTargetTile()){
-            this.TargetTile = this.x + (this.TileSize + tiles);
+            this.TargetTile = this.tiles[this.currentTileIndex + tiles]
+            this.currentTileIndex += tiles;
         }
     }
 }

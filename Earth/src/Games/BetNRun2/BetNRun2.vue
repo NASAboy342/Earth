@@ -54,7 +54,20 @@ class GameScene extends Phaser.Scene {
     this.betNRun2Service.update();
     this.checkIfToRestartGame();
     this.keepCheckingGameViewWidth();
+    this.checkIfToFollowPlayer();
     this.updateViewData();
+  }
+  checkIfToFollowPlayer() {
+    if(this.betNRun2Service.getPlayerX() > (gameContainer.value?.clientWidth ?? 1) / 2){
+      this.scrollCameraToX(this.betNRun2Service.getPlayerX() - (gameContainer.value?.clientWidth ?? 1) / 2);
+    } else {
+      this.scrollCameraToX(0);
+    }
+  }
+  scrollCameraToX(targetX: number) {
+    if(this.cameras.main.scrollX != targetX){
+      this.cameras.main.scrollX += ((targetX - this.cameras.main.scrollX) * 0.05) * this.betNRun2Service.clockService.deltaTimeInCentiseconds;
+    }
   }
   listenForUIButtonPress() {
     if(isGameButtonPress.value === true){

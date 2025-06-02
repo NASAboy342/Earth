@@ -58,6 +58,9 @@ export class BetNRun2Service {
     this.player.update();
     this.crates.forEach(crate => crate.update());
   }
+  getPlayerX(): number {
+    return this.player.x;
+  }
   cashOut() {
     if(this.gameStep === GameStepEnum.cashOut){
       this.playerService.settle(this.playerService.stake * (this.binaryResultService.stakeMultiplier * this.binaryResultService.stakeMultiplyRate));
@@ -93,6 +96,7 @@ export class BetNRun2Service {
   destroyGameObjects() {
     this.player.destroy(true);
     this.background.destroy(true);
+    this.tiles.forEach(tile => tile.destroy(true));
     this.crates.forEach(crate => crate.destroy(true));
   }
   proceedRestartGame() {

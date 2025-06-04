@@ -103,6 +103,7 @@ class GameScene extends Phaser.Scene {
     this.load.image(AssetKeyEnum.backgroundWall2, ImageHelper.GetImageURL("../assets/BetNRun2/Background/wall2.png"));
     this.load.image(AssetKeyEnum.backgroundWall3, ImageHelper.GetImageURL("../assets/BetNRun2/Background/wall3.png"));
     this.load.image(AssetKeyEnum.dayBackground, ImageHelper.GetImageURL("../assets/BetNRun2/Background/dayBackground.png"));
+    this.load.image(AssetKeyEnum.blankCoin, ImageHelper.GetImageURL("../assets/BetNRun2/BlankCoin.png"));
     this.loadPlayerStandingAnimationTextures();
     this.loadPlayerRunningAnimationTextures();
     this.load.image(AssetKeyEnum.crate, ImageHelper.GetImageURL("../assets/BetNRun2/crate.png"))

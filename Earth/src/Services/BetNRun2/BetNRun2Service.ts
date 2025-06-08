@@ -26,6 +26,7 @@ export class BetNRun2Service {
   restartGameClockStartAt: number = 0;
   restartGameInSecond: number = 5;
   playerService: PlayerService;
+  tileCount: number = 15;
 
   
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
@@ -33,9 +34,7 @@ export class BetNRun2Service {
     this.scene = scene;
     this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.dayBackground));
     var fistTile = new Tiles(this.scene, this.scene.textures.get(AssetKeyEnum.backgroundMainHouse), 0, this.scene.cameras.main.height, true);
-    var secondTile = new Tiles(this.scene, this.scene.textures.get(AssetKeyEnum.backgroundfirstWall), fistTile.getTileWidth(), this.scene.cameras.main.height);
     this.tiles.push(fistTile);
-    this.tiles.push(secondTile);
     this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService, this.tiles);
     this.crates = [];
     this.binaryResultService = new BinaryResultService();
@@ -186,9 +185,10 @@ export class BetNRun2Service {
     this.generateTiles();
   }
   generateTiles() {
-    for (let i = 0; i < 15; i++){
+    let tileValues = this.binaryResultService.getTileValue(this.tileCount);
+    for (let i = 0; i < this.tileCount; i++){
       let previousTile = this.tiles[this.tiles.length - 1];
-      let nextTile = new Tiles(this.scene, this.scene.textures.get(this.getRandomWallType()), previousTile.x + previousTile.getTileWidth(), this.scene.cameras.main.height);
+      let nextTile = new Tiles(this.scene, this.scene.textures.get(this.getRandomWallType()), previousTile.x + previousTile.getTileWidth(), this.scene.cameras.main.height, false, tileValues[i]);
       this.tiles.push(nextTile);
     }
 

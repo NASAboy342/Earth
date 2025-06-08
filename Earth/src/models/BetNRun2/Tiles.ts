@@ -12,14 +12,15 @@ export class Tiles extends GameObjectBase{
     coin: Coin;
     isMainTile: boolean;
 
-    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, isMainTile: boolean = false) {
+    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, isMainTile: boolean = false, tileValue: number = 0) {
         super(scene, texture);
         this.x = x;
         this.y = y;
         this.isMainTile = isMainTile;
         if(!isMainTile){
-            this.coin = new Coin(scene, scene.textures.get(AssetKeyEnum.blankCoin), (this.x + this.midTileWidth), (this.height / 3));
+            this.coin = new Coin(scene, scene.textures.get(AssetKeyEnum.blankCoin), (this.x + this.midTileWidth), (this.height / 3), tileValue);
         }
+        this.tileValue = tileValue;
     }
 
     getTileWidth(): number {

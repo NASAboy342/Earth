@@ -11,6 +11,7 @@ export class Tiles extends GameObjectBase{
     tileValue: number = 0;
     coin: Coin;
     isMainTile: boolean;
+    isPlayerOnTile: boolean = false;
 
     constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, isMainTile: boolean = false, tileValue: number = 0) {
         super(scene, texture);
@@ -21,6 +22,15 @@ export class Tiles extends GameObjectBase{
             this.coin = new Coin(scene, scene.textures.get(AssetKeyEnum.blankCoin), (this.x + this.midTileWidth), (this.height / 3), tileValue);
         }
         this.tileValue = tileValue;
+    }
+
+    override update(): void {
+        this.checkToPlayPlayerOnTile();
+    }
+    checkToPlayPlayerOnTile() {
+        if(this.isPlayerOnTile) {
+            this.coin.playCoinCollectAnimation();
+        }
     }
 
     getTileWidth(): number {

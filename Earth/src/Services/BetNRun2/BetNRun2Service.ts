@@ -56,6 +56,7 @@ export class BetNRun2Service {
     this.cashOut();
     this.player.update();
     this.crates.forEach(crate => crate.update());
+    this.tiles.forEach(tile => tile.update());
   }
   getPlayerX(): number {
     return this.player.x;
@@ -151,6 +152,7 @@ export class BetNRun2Service {
   }
   settleGameWin() {
     if(this.gameStep === GameStepEnum.betSettledWin){
+      this.player.TargetTile.isPlayerOnTile = true;
       this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
     }
   }

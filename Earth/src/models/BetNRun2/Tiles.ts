@@ -1,5 +1,6 @@
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
-import { Coin } from "./Coin";
+import type { ClockService } from "../../Services/ClockService";
+import { Coin, CoinStatusEnum } from "./Coin";
 import { GameObjectBase } from "./GameObjectBase";
 
 export class Tiles extends GameObjectBase{
@@ -12,24 +13,36 @@ export class Tiles extends GameObjectBase{
     coin: Coin;
     isMainTile: boolean;
     isPlayerOnTile: boolean = false;
+    clockService: ClockService;
 
-    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, isMainTile: boolean = false, tileValue: number = 0) {
+    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, isMainTile: boolean = false, tileValue: number = 0, clockService: ClockService) {
         super(scene, texture);
         this.x = x;
         this.y = y;
         this.isMainTile = isMainTile;
         if(!isMainTile){
-            this.coin = new Coin(scene, scene.textures.get(AssetKeyEnum.blankCoin), (this.x + this.midTileWidth), (this.height / 3), tileValue);
+            this.coin = new Coin(scene, scene.textures.get(AssetKeyEnum.blankCoin), (this.x + this.midTileWidth), (this.height / 3), tileValue, clockService);
         }
         this.tileValue = tileValue;
+        this.clockService = clockService;
     }
 
     override update(): void {
         this.checkToPlayPlayerOnTile();
+        if(this.coin){
+            this.coin.update();
+            this.checkToDestroyCoin();
+        }
+    }
+    checkToDestroyCoin() {
+        if(this.coin && this.coin.coinStatus === CoinStatusEnum.destroyed){
+            this.coin.destroy();
+            this.coin = null;
+        }
     }
     checkToPlayPlayerOnTile() {
-        if(this.isPlayerOnTile) {
-            this.coin.playCoinCollectAnimation();
+        if(this.coin && this.isPlayerOnTile) {
+            this.coin.setNewCoinStatus(CoinStatusEnum.collected);
         }
     }
 

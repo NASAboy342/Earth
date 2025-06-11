@@ -1,3 +1,4 @@
+import type { ClockService } from "../../Services/ClockService";
 import { GameObjectBase } from "./GameObjectBase";
 
 export class Coin extends GameObjectBase{
@@ -5,7 +6,10 @@ export class Coin extends GameObjectBase{
     scaleMultiplier: number = 0.80;
     coinValue: number = 0;
     displayNumber: Phaser.GameObjects.Text;
-    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, coinValue: number = 0){
+    coinPreviousStatus: CoinStatusEnum = CoinStatusEnum.idle;
+    coinStatus: CoinStatusEnum = CoinStatusEnum.idle;
+    clockService: ClockService;
+    constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, coinValue: number = 0, clockService: ClockService){
         super(scene, texture);
         this.x = x;
         this.y = y;
@@ -17,6 +21,22 @@ export class Coin extends GameObjectBase{
             fontFamily: 'Arial',
             align: 'center'
         })
+        this.clockService = clockService;
+    }
+
+    override update(): void {
+        this.playAnumation();
+    }
+    playAnumation() {
+        this.playCoinCollected();
+    }
+    playCoinCollected() {
+        if(this.coinStatus === CoinStatusEnum.collected){
+            this.alpha -= 0.01 * this.clockService.deltaTimeInCentiseconds;
+            if(this.alpha <= 0.01){
+                this.setNewCoinStatus(CoinStatusEnum.destroyed)
+            }
+        }
     }
 
     override create(): void {
@@ -29,6 +49,19 @@ export class Coin extends GameObjectBase{
 
     override destroy(fromScene?: boolean): void {
         this.displayNumber.destroy();
+        this.displayNumber = null;
         super.destroy(fromScene);
     }
+    setNewCoinStatus(newCoinstatus: CoinStatusEnum) {
+        if(this.coinStatus !== newCoinstatus){
+            this.coinPreviousStatus = this.coinStatus;
+            this.coinStatus = newCoinstatus
+        }
+    }
+}
+
+export enum CoinStatusEnum{
+    idle,
+    collected,
+    destroyed,
 }

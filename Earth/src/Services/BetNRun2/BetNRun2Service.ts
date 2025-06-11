@@ -190,7 +190,7 @@ export class BetNRun2Service {
     let tileValues = this.binaryResultService.getTileValue(this.tileCount);
     for (let i = 0; i < this.tileCount; i++){
       let previousTile = this.tiles[this.tiles.length - 1];
-      let nextTile = new Tiles(this.scene, this.scene.textures.get(this.getRandomWallType()), previousTile.x + previousTile.getTileWidth(), this.scene.cameras.main.height, false, tileValues[i]);
+      let nextTile = new Tiles(this.scene, this.scene.textures.get(this.getRandomWallType()), previousTile.x + previousTile.getTileWidth(), this.scene.cameras.main.height, false, tileValues[i], this.clockService);
       this.tiles.push(nextTile);
     }
 

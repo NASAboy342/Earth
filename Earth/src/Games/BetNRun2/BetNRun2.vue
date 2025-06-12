@@ -7,6 +7,7 @@ import { ImageHelper } from "../../Helpers/ImageHelper";
 import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 import { PlayerInfo } from "../../models/PlayerInfo";
 import { PlayerService } from "../../Services/PlayerService";
+import { LoadingScreenHelper } from "../../Helpers/LoadingScreenHelper";
 
 const gameContainer = ref<HTMLElement | null>(null);
 const gameStep = ref<GameStepEnum>();
@@ -39,6 +40,7 @@ class GameScene extends Phaser.Scene {
   }
   
   preload() {
+    LoadingScreenHelper.create(this);
     this.loadTextures();
   }
   

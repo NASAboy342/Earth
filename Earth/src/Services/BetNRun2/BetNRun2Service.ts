@@ -56,7 +56,12 @@ export class BetNRun2Service {
     this.cashOut();
     this.player.update();
     this.crates.forEach(crate => crate.update());
-    this.tiles.forEach(tile => tile.update());
+    this.tiles.forEach(tile => {
+      tile.update();
+      if (tile.coin && tile.coin.isClicked){
+        this.raiseBet();
+      }
+    });
   }
   getPlayerX(): number {
     return this.player.x;

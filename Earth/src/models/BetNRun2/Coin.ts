@@ -9,6 +9,7 @@ export class Coin extends GameObjectBase{
     coinPreviousStatus: CoinStatusEnum = CoinStatusEnum.idle;
     coinStatus: CoinStatusEnum = CoinStatusEnum.idle;
     clockService: ClockService;
+    isClicked: boolean = false;
     constructor(scene: Phaser.Scene, texture: Phaser.Textures.Texture, x: number, y: number, coinValue: number = 0, clockService: ClockService){
         super(scene, texture);
         this.x = x;
@@ -22,20 +23,48 @@ export class Coin extends GameObjectBase{
             align: 'center'
         })
         this.clockService = clockService;
+        this.setInteractive();
     }
 
     override update(): void {
+        this.interactionListener();
         this.playAnumation();
+    }
+    interactionListener() {
+        this.on('pointerdown', () => {
+            this.isClicked = true;
+        });
+        this.on('pointerup', () => {
+            this.isClicked = false;
+        });
+        this.on('pointerover', () => {
+            this.scene.input.setDefaultCursor('pointer');
+        })
+        this.on('pointerout', () => {
+            this.scene.input.setDefaultCursor('default');
+        });
     }
     playAnumation() {
         this.playCoinCollected();
     }
     playCoinCollected() {
         if(this.coinStatus === CoinStatusEnum.collected){
-            this.alpha -= 0.01 * this.clockService.deltaTimeInCentiseconds;
-            if(this.alpha <= 0.01){
-                this.setNewCoinStatus(CoinStatusEnum.destroyed)
-            }
+            this.fadingOut();
+            this.exspanding();
+        }
+    }
+    exspanding() {
+        let scaleIncrementRate = 0.01;
+        
+        this.scaleX += scaleIncrementRate * this.clockService.deltaTimeInCentiseconds;
+        this.scaleY += scaleIncrementRate * this.clockService.deltaTimeInCentiseconds;
+        this.displayNumber.scaleX += scaleIncrementRate * this.clockService.deltaTimeInCentiseconds;
+        this.displayNumber.scaleY += scaleIncrementRate * this.clockService.deltaTimeInCentiseconds;
+    }
+    fadingOut() {
+        this.alpha -= 0.01 * this.clockService.deltaTimeInCentiseconds;
+        if(this.alpha <= 0.01){
+            this.setNewCoinStatus(CoinStatusEnum.destroyed)
         }
     }
 

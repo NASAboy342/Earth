@@ -1,38 +1,78 @@
 export class LoadingScreenHelper {
   static create(scene: Phaser.Scene): void {
-    // Create a simple loading bar
-    const width = scene.cameras.main.width;
-    const height = scene.cameras.main.height;
+    const sceneWidth = scene.cameras.main.width;
+    const sceneHeight = scene.cameras.main.height;
+    
 
-    const progressBox = scene.add.graphics();
-    const progressBar = scene.add.graphics();
+    const progressBox = new ProgressBox(scene, sceneWidth / 4, sceneHeight / 2 - 20, sceneWidth / 2, 40);
+    const loadingText = new LoadingText(scene, sceneWidth / 2, sceneHeight / 2 - 50);
 
-    progressBox.fillStyle(0x222222, 0.8);
-    progressBox.fillRect(width / 4, height / 2 - 20, width / 2, 40);
-
-    const loadingText = scene.add
-      .text(width / 2, height / 2 - 50, "Loading...", {
-        fontSize: "20px",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-
-    scene.load.on("progress", (value) => {
-      progressBar.clear();
-      progressBar.fillStyle(0xffffff, 1);
-      progressBar.fillRect(
-        width / 4 + 10,
-        height / 2 - 10,
-        (width / 2 - 20) * value,
-        20
-      );
+    scene.load.on("progress", (value: number) => {
+        progressBox.progressBar.draw(value);
     });
 
     scene.load.on("complete", () => {
-      progressBar.destroy();
       progressBox.destroy();
       loadingText.destroy();
-      //this.scene.start('MainScene'); // go to your main game
     });
   }
+}
+
+class ProgressBox extends Phaser.GameObjects.Graphics {
+    progressBar: ProgressBar;
+
+    constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
+        super(scene);
+        this.x = x;
+        this.y = y;
+        this.draw(width, height);
+        this.addToDisplayList();
+        this.progressBar = new ProgressBar(scene, x, y, width, height);
+    }
+    draw(width: number, height: number) {
+        this.fillStyle(0x222222, 1);
+        this.fillRect(0, 0, width, height);
+        this.fillCircle(0, 0 + (height / 2), (height / 2));
+        this.fillCircle(width, (height / 2), (height / 2));
+    }
+
+    override destroy(fromScene?: boolean): void {
+        this.progressBar.destroy(fromScene);
+        super.destroy(fromScene);
+    }
+}
+
+class ProgressBar extends Phaser.GameObjects.Graphics {
+    progressBoxWidth: number;
+    progressBoxHeight: number;
+    padding = 10;
+    constructor(scene: Phaser.Scene, x: number, y: number, progressBoxwidth: number, progressBoxHeight: number) {
+        super(scene);
+        this.x = x + (this.padding / 2);
+        this.y = y + (this.padding / 2);
+        this.progressBoxWidth = progressBoxwidth;
+        this.progressBoxHeight = progressBoxHeight;
+        this.addToDisplayList();
+    }
+
+    draw(value: number) {
+        let width = ((this.progressBoxWidth - (this.padding)) * value) ;
+        let height = this.progressBoxHeight - (this.padding);
+        this.clear();
+        this.fillStyle(0xffffff, 1);
+        this.fillRect(0, 0, width , height);
+        this.fillCircle(0, 0 + (height / 2), (height / 2));
+        this.fillCircle(width, (height / 2), (height / 2));
+    }
+}
+
+class LoadingText extends Phaser.GameObjects.Text {
+    constructor(scene: Phaser.Scene, x: number, y: number) {
+        super(scene, x, y, 'Loading...', {
+        fontSize: "20px",
+        color: "#ffffff",
+        });
+        this.setOrigin(0.5);
+        this.addToDisplayList();
+    }
 }

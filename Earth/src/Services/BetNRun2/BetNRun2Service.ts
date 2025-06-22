@@ -127,7 +127,7 @@ export class BetNRun2Service {
   settleBet() {
     if(this.gameStep === GameStepEnum.settlingBet){
       if(this.player.isOnTargetTile()){
-        let isWin = this.binaryResultService.getResult();
+        let isWin = this.binaryResultService.getPreCalculatedResult(this.player.currentTileIndex-1);
         if(isWin){
           this.setNextGameStep(GameStepEnum.betSettledWin);
         }
@@ -169,6 +169,7 @@ export class BetNRun2Service {
   }
   awaitForBet() {
     if(this.gameStep === GameStepEnum.start){
+      //this.background.playBackgroundMusic();
       this.setNextGameStep(GameStepEnum.awaitingBet);
     }
   }

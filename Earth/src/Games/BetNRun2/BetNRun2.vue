@@ -8,6 +8,7 @@ import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 import { PlayerInfo } from "../../models/PlayerInfo";
 import { PlayerService } from "../../Services/PlayerService";
 import { LoadingScreenHelper } from "../../Helpers/LoadingScreenHelper";
+import { AudioHelper } from "../../Helpers/AudioHelper";
 
 const gameContainer = ref<HTMLElement | null>(null);
 const gameStep = ref<GameStepEnum>();
@@ -42,6 +43,9 @@ class GameScene extends Phaser.Scene {
   preload() {
     LoadingScreenHelper.create(this);
     this.loadTextures();
+    this.loadSound();
+    this.load.audio(AssetKeyEnum.backgroundMusic,  AudioHelper.GetAudioURL("../assets/BetNRun2/sound/JoyfulStakes (online-audio-converter.com).ogg"));
+    
   }
   
   create() {
@@ -49,6 +53,7 @@ class GameScene extends Phaser.Scene {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
     this.playerService = new PlayerService();
     this.startNewGame();
+    console.log('Audio keys in cache:', this.cache.audio.getKeys());
   }
 
   update() {
@@ -110,6 +115,9 @@ class GameScene extends Phaser.Scene {
     this.loadPlayerRunningAnimationTextures();
     this.load.image(AssetKeyEnum.crate, ImageHelper.GetImageURL("../assets/BetNRun2/crate.png"))
   }
+  loadSound() {
+    
+  }
   loadPlayerRunningAnimationTextures() {
     ImageHelper.loadPngSequenceTextures(AssetKeyEnum.runningPlayer, "../assets/BetNRun2/PngSequences/RunningBird", 50, this)
   }
@@ -147,6 +155,9 @@ onMounted(() => {
     height: 600,
     parent: "game-container",
     scene: GameScene,
+    audio: {
+      disableWebAudio: false
+    }
   });
 });
 

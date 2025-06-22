@@ -1,9 +1,29 @@
 export class BinaryResultService{
+    
     private results: boolean[] = [];
     winRate: number = 80;
     stakeMultiplyRate: number = 10;
-    stakeMultiplier: 0;
+    stakeMultiplier: number = 0;
+    tileCount: number = 0;
+    reachableTile: number = 0;
 
+    getPreCalculatedResult(currentTileIndex: number): boolean {
+        console.log('currentTile:', currentTileIndex);
+      return currentTileIndex < this.reachableTile
+    }
+
+    findReachableTile() {
+        let isReachLose = false;
+        for(let i = 1; (i <= this.tileCount && !isReachLose); i++){
+            let isWin = this.getResult();
+            if(isWin){
+                this.reachableTile = i;
+            }
+            else{
+                isReachLose = true;
+            }
+        }
+    }
 
     getResult():boolean{
         let isWin = this.winRate > Phaser.Math.Between(0,100);
@@ -20,6 +40,10 @@ export class BinaryResultService{
         for(let i = 1; i < tileCount; i++){
             tileValues.push(((tileValues[i-1]*100) *2)/100); 
         }
+        this.tileCount = tileCount;
+        this.findReachableTile();
+        console.log('tileCount', this.tileCount)
+        console.log('reachableTile', this.reachableTile)
         return tileValues;
     }
 }

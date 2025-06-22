@@ -1,4 +1,6 @@
+import { Scene } from "phaser";
 import { GameObjectBase } from "./GameObjectBase";
+import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
 
 export class Background extends GameObjectBase {
     BackgroundX: number = 0;
@@ -12,11 +14,17 @@ export class Background extends GameObjectBase {
         );
         this.x = this.BackgroundX;
         this.y = this.BackgroundY;
+        
     }
 
     override create() {
         this.setOrigin(0, 0);
         this.setScale(this.scaleX * this.SclaleMultiplier, this.scaleY * this.SclaleMultiplier);
         super.create();
+        
+    }
+
+    playBackgroundMusic(){
+        this.scene.sound.play(AssetKeyEnum.backgroundMusic);
     }
 }

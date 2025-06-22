@@ -9,5 +9,6 @@ export enum AssetKeyEnum {
   backgroundWall2="backgroundWall2",
   backgroundWall3="backgroundWall3",
   dayBackground="dayBackground",
-  blankCoin="blankCoin"
+  blankCoin="blankCoin",
+  backgroundMusic = "backgroundMusic"
 }

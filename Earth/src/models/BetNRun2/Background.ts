@@ -26,6 +26,9 @@ export class Background extends GameObjectBase {
     }
 
     playBackgroundMusic(){
-        AudioHelper.PlaySoundIfNotPlaying(this.scene, AssetKeyEnum.backgroundMusic);
+        AudioHelper.PlaySoundIfNotPlaying(this.scene, AssetKeyEnum.backgroundMusic, {
+            loop: true,
+            delay: 2
+        });
     }
 }

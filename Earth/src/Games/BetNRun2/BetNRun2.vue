@@ -142,7 +142,6 @@ class GameScene extends Phaser.Scene {
   keepCheckingGameViewWidth() {
     game?.scale.resize(gameContainer.value?.clientWidth ?? 1000, 600);
   }
-  
 }
 
 let game: Phaser.Game | null = null;

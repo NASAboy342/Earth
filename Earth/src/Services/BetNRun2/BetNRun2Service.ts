@@ -103,6 +103,7 @@ export class BetNRun2Service {
     this.background.destroy(true);
     this.tiles.forEach(tile => tile.destroy(true));
     this.crates.forEach(crate => crate.destroy(true));
+    this.scene.sound.stopAll();
   }
   proceedRestartGame() {
     if(this.gameStep === GameStepEnum.gameOver){
@@ -169,7 +170,7 @@ export class BetNRun2Service {
   }
   awaitForBet() {
     if(this.gameStep === GameStepEnum.start){
-      //this.background.playBackgroundMusic();
+      this.background.playBackgroundMusic();
       this.setNextGameStep(GameStepEnum.awaitingBet);
     }
   }

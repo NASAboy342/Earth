@@ -53,7 +53,6 @@ class GameScene extends Phaser.Scene {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
     this.playerService = new PlayerService();
     this.startNewGame();
-    console.log('Audio keys in cache:', this.cache.audio.getKeys());
   }
 
   update() {

@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import { GameObjectBase } from "./GameObjectBase";
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
+import { AudioHelper } from "../../Helpers/AudioHelper";
 
 export class Background extends GameObjectBase {
     BackgroundX: number = 0;
@@ -21,10 +22,10 @@ export class Background extends GameObjectBase {
         this.setOrigin(0, 0);
         this.setScale(this.scaleX * this.SclaleMultiplier, this.scaleY * this.SclaleMultiplier);
         super.create();
-        
+        this.scene.sound.add(AssetKeyEnum.backgroundMusic);
     }
 
     playBackgroundMusic(){
-        this.scene.sound.play(AssetKeyEnum.backgroundMusic);
+        AudioHelper.PlaySoundIfNotPlaying(this.scene, AssetKeyEnum.backgroundMusic);
     }
 }

@@ -32,7 +32,7 @@ export class BetNRun2Service {
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
     this.clockService = new ClockService();
     this.scene = scene;
-    this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.dayBackground));
+    this.background = new Background(this.scene, this.scene.textures.get(AssetKeyEnum.dayBackground), playerService);
     var fistTile = new Tiles(this.scene, this.scene.textures.get(AssetKeyEnum.backgroundMainHouse), 0, this.scene.cameras.main.height, true, 0, this.clockService);
     this.tiles.push(fistTile);
     this.player = new Player(this.scene, this.background, this.scene.textures.get(ImageHelper.getFirstFrameOfPngSequenceTextures(AssetKeyEnum.standingPlayer)), this.clockService, this.tiles);

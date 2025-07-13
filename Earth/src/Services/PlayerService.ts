@@ -1,8 +1,10 @@
+import { GameSettings } from "../models/GameSettings";
 import { PlayerInfo } from "../models/PlayerInfo";
 
 export class PlayerService {
     playerInfo: PlayerInfo;
     stake: number = 0;
+    gameSettings: GameSettings = new GameSettings();
     
     constructor(){
         this.playerInfo = {

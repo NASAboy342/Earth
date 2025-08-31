@@ -5,6 +5,7 @@ import { ClockService } from "../../Services/ClockService";
 import { Tiles } from "./Tiles";
 
 export class Player extends GameObjectBase {
+    
     PlayerInitX: number = 120;
     PlayerInitY: number = 350;
     ScaleMultiplier: number = 0.2;
@@ -66,5 +67,8 @@ export class Player extends GameObjectBase {
             this.TargetTile = this.tiles[this.currentTileIndex + tiles]
             this.currentTileIndex += tiles;
         }
+    }
+    getCurrentTileValue() {
+      return this.tiles[this.currentTileIndex].tileValue;
     }
 }

@@ -8,7 +8,6 @@ export class BinaryResultService{
     reachableTile: number = 0;
 
     getPreCalculatedResult(currentTileIndex: number): boolean {
-        console.log('currentTile:', currentTileIndex);
       return currentTileIndex < this.reachableTile
     }
 
@@ -42,8 +41,6 @@ export class BinaryResultService{
         }
         this.tileCount = tileCount;
         this.findReachableTile();
-        console.log('tileCount', this.tileCount)
-        console.log('reachableTile', this.reachableTile)
         return tileValues;
     }
 }

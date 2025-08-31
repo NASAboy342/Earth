@@ -8,13 +8,11 @@ const logoDisplayType = ref<string>("");
 watch(
   () => route.name,
   (newName, oldName) => {
-    console.log(newName);
     if (newName === "Home") {
       logoDisplayType.value = "";
     } else {
       logoDisplayType.value = "none";
     }
-    console.log(logoDisplayType.value);
   }
 );
 </script>

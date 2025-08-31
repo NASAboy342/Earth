@@ -68,7 +68,7 @@ export class BetNRun2Service {
   }
   cashOut() {
     if(this.gameStep === GameStepEnum.cashOut){
-      this.playerService.settle(this.playerService.stake * (this.binaryResultService.stakeMultiplier * this.binaryResultService.stakeMultiplyRate));
+      this.playerService.settle(this.playerService.stake + (this.playerService.stake * this.player.getCurrentTileValue()));
       this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
@@ -78,14 +78,13 @@ export class BetNRun2Service {
     }
   }
   minusStake() {
-    if(this.gameStep === GameStepEnum.awaitingBet && this.playerService.stake >= 0){
-      this.playerService.stake -=  Phaser.Math.RoundTo(this.playerService.stake * 0.5, -2);
+    if(this.gameStep === GameStepEnum.awaitingBet){
+      this.playerService.minusStake();
     }
   }
   addStake() {
     if(this.gameStep === GameStepEnum.awaitingBet){
-      console.log(Phaser.Math.RoundTo((this.playerService.stake === 0 ? 1 : this.playerService.stake) * 0.5, -2));
-      this.playerService.stake += Phaser.Math.RoundTo((this.playerService.stake === 0 ? 1 : this.playerService.stake) * 0.5, -2);
+      this.playerService.addStake();
     }
   }
   proceedCashOut() {
@@ -183,7 +182,6 @@ export class BetNRun2Service {
   setNextGameStep(newGameStep: GameStepEnum) {
     this.gamePreviousStep = this.gameStep;
     this.gameStep = newGameStep;
-    console.log("Game Step: " + GameStepEnum[this.gameStep]);
   }
   movePlayerToNextPosition() {
     this.player.moveToNextTile(1);

@@ -199,7 +199,7 @@ onUnmounted(() => {
         <div></div>
         <div class="balence-containner">
           <div class="label">Balence:</div>
-          <div class="balence"> <span>{{ playerInfo?.currency }}</span> <span>{{ playerInfo?.balance }}</span> </div>
+          <div class="balence"> <span>{{ playerInfo?.currency }}</span> <span>{{ Phaser.Math.RoundTo(playerInfo?.balance ?? 0, -2) }}</span> </div>
         </div>
       </div>
     </div>

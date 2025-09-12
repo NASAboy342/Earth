@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import logoImg from '../assets/Logo.png';
 
 const route = useRoute();
 const logoDisplayType = ref<string>("");
@@ -23,7 +24,7 @@ watch(
       :style="`display: ${logoDisplayType} ;`"
       class="logo-container flex justify-center"
     >
-      <img src="../assets/Logo.png" alt="PilotGaming Logo" class="w-36" />
+      <img :src="logoImg" alt="PilotGaming Logo" class="w-36" />
     </div>
     <header>
       <nav>

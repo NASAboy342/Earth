@@ -26,14 +26,16 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import type { GameThumbnailInfo } from '../models/gameThumnailInfo';
+import betNRunThumbnail from '../assets/GameThumnail/bet-n-run.png';
+import luckyDropThumbnail from '../assets/GameThumnail/lucky-drop.png';
 
 const thumnails = ref<GameThumbnailInfo[]>([
   {
-    imgPath: new URL("../assets/GameThumnail/bet-n-run.png", import.meta.url).href,
+    imgPath: betNRunThumbnail,
     route: "/bet-n-run2",
   },
   {
-    imgPath: new URL("../assets/GameThumnail/lucky-drop.png", import.meta.url).href,
+    imgPath: luckyDropThumbnail,
     route: "/lucky-drop",
   },
   

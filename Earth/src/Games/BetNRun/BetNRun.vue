@@ -2,6 +2,8 @@
 import { onMounted, onUnmounted } from "vue";
 import Phaser from "phaser";
 import { ImageHelper } from "../../Helpers/ImageHelper";
+import backgroundImg from '../../assets/Background.png';
+const standingBirdImages = import.meta.glob('../../assets/PngSequences/StandingBird/*.png', { eager: true });
 
 // 🎮 Define Phaser GameScene
 class GameScene extends Phaser.Scene {
@@ -13,12 +15,14 @@ class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('BackgroundStart', new URL(`../../assets/Background.png`, import.meta.url).href)
-    // ✅ Dynamically load PNG sequence (0001.png to 0050.png)
-    for (let i = 1; i <= 50; i++) {
-      const frameNumber = i.toString().padStart(4, "0"); // Format to "0001", "0002", ...
-      this.load.image(`char_${frameNumber}`, new URL(`../../assets/PngSequences/StandingBird/${frameNumber}.png`, import.meta.url).href);
-    }
+    this.load.image('BackgroundStart', backgroundImg);
+    // ✅ Load PNG sequence using imported images
+    Object.entries(standingBirdImages).forEach(([path, module]) => {
+      const fileName = path.split('/').pop()?.replace('.png', '');
+      if (fileName) {
+        this.load.image(`char_${fileName}`, (module as any).default);
+      }
+    });
   }
 
   create() {

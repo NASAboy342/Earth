@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
+import mainHouseImg from '../../assets/BetNRun2/Background/mainHouse.png';
+import firstWallImg from '../../assets/BetNRun2/Background/firstWall.png';
+import wall1Img from '../../assets/BetNRun2/Background/wall1.png';
+import wall2Img from '../../assets/BetNRun2/Background/wall2.png';
+import wall3Img from '../../assets/BetNRun2/Background/wall3.png';
+import dayBackgroundImg from '../../assets/BetNRun2/Background/dayBackground.png';
+import blankCoinImg from '../../assets/BetNRun2/BlankCoin.png';
+import crateImg from '../../assets/BetNRun2/crate.png';
+import backgroundMusicAudio from '../../assets/BetNRun2/sound/JoyfulStakes (online-audio-converter.com).ogg';
+const runningBirdImages = import.meta.glob('../../assets/BetNRun2/PngSequences/RunningBird/*.png', { eager: true });
+const standingBirdImages = import.meta.glob('../../assets/BetNRun2/PngSequences/StandingBird/*.png', { eager: true });
 import Phaser from "phaser";
 import { BetNRun2Service } from "../../Services/BetNRun2/BetNRun2Service";
 import { AssetKeyEnum } from "../../Enums/BetNRun2/AssetKeyEnum";
@@ -8,7 +19,6 @@ import { GameStepEnum } from "../../Enums/BetNRun2/GameStepEnum";
 import { PlayerInfo } from "../../models/PlayerInfo";
 import { PlayerService } from "../../Services/PlayerService";
 import { LoadingScreenHelper } from "../../Helpers/LoadingScreenHelper";
-import { AudioHelper } from "../../Helpers/AudioHelper";
 
 const gameContainer = ref<HTMLElement | null>(null);
 const gameStep = ref<GameStepEnum>();
@@ -44,7 +54,7 @@ class GameScene extends Phaser.Scene {
     LoadingScreenHelper.create(this);
     this.loadTextures();
     this.loadSound();
-    this.load.audio(AssetKeyEnum.backgroundMusic,  AudioHelper.GetAudioURL("../assets/BetNRun2/sound/JoyfulStakes (online-audio-converter.com).ogg"));
+    this.load.audio(AssetKeyEnum.backgroundMusic, backgroundMusicAudio);
     
   }
   
@@ -103,25 +113,37 @@ class GameScene extends Phaser.Scene {
   }
 
   loadTextures() {
-    this.load.image(AssetKeyEnum.backgroundMainHouse, ImageHelper.GetImageURL("../assets/BetNRun2/Background/mainHouse.png"));
-    this.load.image(AssetKeyEnum.backgroundfirstWall, ImageHelper.GetImageURL("../assets/BetNRun2/Background/firstWall.png"));
-    this.load.image(AssetKeyEnum.backgroundWall1, ImageHelper.GetImageURL("../assets/BetNRun2/Background/wall1.png"));
-    this.load.image(AssetKeyEnum.backgroundWall2, ImageHelper.GetImageURL("../assets/BetNRun2/Background/wall2.png"));
-    this.load.image(AssetKeyEnum.backgroundWall3, ImageHelper.GetImageURL("../assets/BetNRun2/Background/wall3.png"));
-    this.load.image(AssetKeyEnum.dayBackground, ImageHelper.GetImageURL("../assets/BetNRun2/Background/dayBackground.png"));
-    this.load.image(AssetKeyEnum.blankCoin, ImageHelper.GetImageURL("../assets/BetNRun2/BlankCoin.png"));
+    this.load.image(AssetKeyEnum.backgroundMainHouse, mainHouseImg);
+    this.load.image(AssetKeyEnum.backgroundfirstWall, firstWallImg);
+    this.load.image(AssetKeyEnum.backgroundWall1, wall1Img);
+    this.load.image(AssetKeyEnum.backgroundWall2, wall2Img);
+    this.load.image(AssetKeyEnum.backgroundWall3, wall3Img);
+    this.load.image(AssetKeyEnum.dayBackground, dayBackgroundImg);
+    this.load.image(AssetKeyEnum.blankCoin, blankCoinImg);
     this.loadPlayerStandingAnimationTextures();
     this.loadPlayerRunningAnimationTextures();
-    this.load.image(AssetKeyEnum.crate, ImageHelper.GetImageURL("../assets/BetNRun2/crate.png"))
+    this.load.image(AssetKeyEnum.crate, crateImg);
   }
   loadSound() {
     
   }
   loadPlayerRunningAnimationTextures() {
-    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.runningPlayer, "../assets/BetNRun2/PngSequences/RunningBird", 50, this)
+    // Load running bird animation frames using imported images
+    Object.entries(runningBirdImages).forEach(([path, module]) => {
+      const fileName = path.split('/').pop()?.replace('.png', '');
+      if (fileName) {
+        this.load.image(`${AssetKeyEnum.runningPlayer}_${fileName}`, (module as any).default);
+      }
+    });
   }
   loadPlayerStandingAnimationTextures() {
-    ImageHelper.loadPngSequenceTextures(AssetKeyEnum.standingPlayer, "../assets/BetNRun2/PngSequences/StandingBird", 50, this)
+    // Load standing bird animation frames using imported images
+    Object.entries(standingBirdImages).forEach(([path, module]) => {
+      const fileName = path.split('/').pop()?.replace('.png', '');
+      if (fileName) {
+        this.load.image(`${AssetKeyEnum.standingPlayer}_${fileName}`, (module as any).default);
+      }
+    });
   }
   
   checkIfToRestartGame() {

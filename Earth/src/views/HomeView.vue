@@ -11,6 +11,9 @@
           </router-link>
         </div>
       </nav>
+      <div class="mt-10 text-gray-500 italic">
+        More games coming soon...
+      </div>
     </div>
   </template>
   
@@ -34,10 +37,10 @@ const thumnails = ref<GameThumbnailInfo[]>([
     imgPath: betNRunThumbnail,
     route: "/bet-n-run2",
   },
-  {
-    imgPath: luckyDropThumbnail,
-    route: "/lucky-drop",
-  },
+  // {
+  //   imgPath: luckyDropThumbnail,
+  //   route: "/lucky-drop",
+  // },
   
   
 ])

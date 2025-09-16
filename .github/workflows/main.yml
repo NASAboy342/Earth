@@ -1,23 +1,27 @@
-name: Test Deploy to Windows 10
+# Save this as C:\deploy\webhook-server.ps1
 
-on:
-  push:
-    branches:
-      - main
+Add-Type -AssemblyName System.Net.HttpListener
+$listener = New-Object System.Net.HttpListener
+$listener.Prefixes.Add("https://localhost:1000/") # match your apini.ppiinn.net mapping
+$listener.Start()
+Write-Host "Webhook listener running on http://localhost:1000/"
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+while ($true) {
+    $context = $listener.GetContext()
+    $request = $context.Request
+    $response = $context.Response
 
-      - name: Run PowerShell test script on Windows server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_SERVER }}
-          username: ${{ secrets.DEPLOY_USER }} # e.g. Administrator or your Windows account
-          key: ${{ secrets.DEPLOY_KEY }}
-          script: |
-            echo "✅ Connected to Windows server as $env:USERNAME"
-            pwsh -File C:/deploy/test.ps1
+    # Optional: only allow POST
+    if ($request.HttpMethod -eq "POST") {
+        Write-Host "🚀 Webhook received at $(Get-Date)"
+
+        # Run your deployment script
+        & "C:\deploy\test.ps1"
+
+        $buffer = [System.Text.Encoding]::UTF8.GetBytes("Webhook executed successfully")
+        $response.ContentLength64 = $buffer.Length
+        $response.OutputStream.Write($buffer, 0, $buffer.Length)
+    }
+
+    $response.Close()
+}

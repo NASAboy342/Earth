@@ -1,27 +1,29 @@
-# Save this as C:\deploy\webhook-server.ps1
+name: Test Server Connection
 
-Add-Type -AssemblyName System.Net.HttpListener
-$listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("https://localhost:1000/") # match your apini.ppiinn.net mapping
-$listener.Start()
-Write-Host "Webhook listener running on http://localhost:1000/"
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-while ($true) {
-    $context = $listener.GetContext()
-    $request = $context.Request
-    $response = $context.Response
-
-    # Optional: only allow POST
-    if ($request.HttpMethod -eq "POST") {
-        Write-Host "🚀 Webhook received at $(Get-Date)"
-
-        # Run your deployment script
-        & "C:\deploy\test.ps1"
-
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes("Webhook executed successfully")
-        $response.ContentLength64 = $buffer.Length
-        $response.OutputStream.Write($buffer, 0, $buffer.Length)
-    }
-
-    $response.Close()
-}
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Test Windows Server Connection
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        script: |
+          Write-Host "🔗 Successfully connected to Windows server!"
+          Write-Host "Server info:"
+          Write-Host "- Computer Name: $env:COMPUTERNAME"
+          Write-Host "- Current User: $env:USERNAME" 
+          Write-Host "- Current Time: $(Get-Date)"
+          Write-Host "- PowerShell Version: $($PSVersionTable.PSVersion)"
+          Write-Host "- Working Directory: $(Get-Location)"
+          Write-Host "✅ Connection test completed successfully!"

@@ -1,0 +1,23 @@
+name: Test Deploy to Windows 10
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run PowerShell test script on Windows server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_SERVER }}
+          username: ${{ secrets.DEPLOY_USER }} # e.g. Administrator or your Windows account
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            echo "✅ Connected to Windows server as $env:USERNAME"
+            pwsh -File C:/deploy/test.ps1

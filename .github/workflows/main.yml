@@ -15,9 +15,9 @@ jobs:
     - name: Test Windows Server Connection
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        password: ${{ secrets.SERVER_PASSWORD }}
+        host: ${{ secrets.DEPLOY_SERVER }}
+        username: ${{ secrets.DEPLOY_USER }}
+        password: ${{ secrets.DEPLOY_KEY }}
         script: |
           Write-Host "🔗 Successfully connected to Windows server!"
           Write-Host "Server info:"

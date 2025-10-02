@@ -1,0 +1,42 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-runner:
+    runs-on: self-hosted  # This will use your self-hosted runner
+    
+    steps:
+    - name: 🏃‍♂️ Test Runner Connection
+      run: |
+        echo "🎉 Self-hosted runner is working!"
+        echo "🖥️  Runner OS: $(uname -s)"
+        echo "🏗️  Runner Architecture: $(uname -m)"
+        echo "📅 Current Date: $(date)"
+        echo "📁 Current Directory: $(pwd)"
+        echo "👤 Current User: $(whoami)"
+        
+    - name: 🔍 Check Available Tools
+      run: |
+        echo "🛠️  Checking available tools..."
+        echo "Git version: $(git --version || echo 'Git not found')"
+        echo "Node version: $(node --version || echo 'Node not found')"
+        echo "NPM version: $(npm --version || echo 'NPM not found')"
+        echo "PowerShell version: $(pwsh --version || echo 'PowerShell not found')"
+        
+    - name: 🧪 Test Basic Commands
+      run: |
+        echo "🧪 Running basic command tests..."
+        echo "📊 System uptime:"
+        uptime || echo "Uptime command not available"
+        echo "💾 Disk space:"
+        df -h . || echo "df command not available"
+        echo "🔍 Environment variables (filtered):"
+        env | grep -E "^(PATH|HOME|USER|RUNNER)" | head -10 || echo "Environment check failed"
+        
+    - name: ✅ Test Complete
+      run: |
+        echo "🎊 All tests completed successfully!"
+        echo "✨ Your self-hosted runner is ready to use!"

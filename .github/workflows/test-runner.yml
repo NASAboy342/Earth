@@ -21,7 +21,6 @@ jobs:
         Write-Host "Try to pull the latest code..."
         git pull origin main
 
-    steps:
     - name: Deploy Application
       shell: powershell
       run: |

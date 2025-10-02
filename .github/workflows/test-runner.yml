@@ -10,7 +10,7 @@ jobs:
     
     steps:
     - name: 🏃‍♂️ Test Runner Connection
-      shell: pwsh
+      shell: powershell
       run: |
         Write-Host "🎉 Self-hosted runner is working!"
         Write-Host "🖥️  Runner OS: $($env:OS)"
@@ -20,7 +20,7 @@ jobs:
         Write-Host "👤 Current User: $($env:USERNAME)"
         
     - name: 🔍 Check Available Tools
-      shell: pwsh
+      shell: powershell
       run: |
         Write-Host "🛠️  Checking available tools..."
         try { Write-Host "Git version: $(git --version)" } catch { Write-Host "Git not found" }
@@ -29,7 +29,7 @@ jobs:
         Write-Host "PowerShell version: $($PSVersionTable.PSVersion)"
         
     - name: 🧪 Test Basic Commands
-      shell: pwsh
+      shell: powershell
       run: |
         Write-Host "🧪 Running basic command tests..."
         Write-Host "📊 System uptime:"
@@ -40,7 +40,7 @@ jobs:
         try { Get-ChildItem env: | Where-Object {$_.Name -match "^(PATH|HOME|USER|RUNNER|COMPUTERNAME)"} | Select-Object -First 10 | Format-Table Name, Value } catch { Write-Host "Environment check failed" }
         
     - name: ✅ Test Complete
-      shell: pwsh
+      shell: powershell
       run: |
         Write-Host "🎊 All tests completed successfully!"
         Write-Host "✨ Your self-hosted runner is ready to use!"

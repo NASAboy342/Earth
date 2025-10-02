@@ -6,7 +6,7 @@ on:
 
 env:
   repositoryDir: D:\Clones\Earth
-  projectDir: $env:repositoryDir\Earth
+  projectDir: ${{ env.repositoryDir }}\Earth
 
 jobs:
   test-runner:

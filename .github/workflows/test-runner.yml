@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches: [ main ]
-    
+
 env:
   projectDir: D:\Clones\Earth
 
@@ -16,6 +16,6 @@ jobs:
       shell: powershell
       run: |
         Write-Host "Going to project directory..."
-        cd $projectDir
+        cd $env:projectDir
         Write-Host "Try to pull the latest code..."
         git pull origin main

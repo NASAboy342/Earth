@@ -10,33 +10,37 @@ jobs:
     
     steps:
     - name: 🏃‍♂️ Test Runner Connection
+      shell: pwsh
       run: |
-        echo "🎉 Self-hosted runner is working!"
-        echo "🖥️  Runner OS: $(uname -s)"
-        echo "🏗️  Runner Architecture: $(uname -m)"
-        echo "📅 Current Date: $(date)"
-        echo "📁 Current Directory: $(pwd)"
-        echo "👤 Current User: $(whoami)"
+        Write-Host "🎉 Self-hosted runner is working!"
+        Write-Host "🖥️  Runner OS: $($env:OS)"
+        Write-Host "🏗️  Runner Architecture: $($env:PROCESSOR_ARCHITECTURE)"
+        Write-Host "📅 Current Date: $(Get-Date)"
+        Write-Host "📁 Current Directory: $(Get-Location)"
+        Write-Host "👤 Current User: $($env:USERNAME)"
         
     - name: 🔍 Check Available Tools
+      shell: pwsh
       run: |
-        echo "🛠️  Checking available tools..."
-        echo "Git version: $(git --version || echo 'Git not found')"
-        echo "Node version: $(node --version || echo 'Node not found')"
-        echo "NPM version: $(npm --version || echo 'NPM not found')"
-        echo "PowerShell version: $(pwsh --version || echo 'PowerShell not found')"
+        Write-Host "🛠️  Checking available tools..."
+        try { Write-Host "Git version: $(git --version)" } catch { Write-Host "Git not found" }
+        try { Write-Host "Node version: $(node --version)" } catch { Write-Host "Node not found" }
+        try { Write-Host "NPM version: $(npm --version)" } catch { Write-Host "NPM not found" }
+        Write-Host "PowerShell version: $($PSVersionTable.PSVersion)"
         
     - name: 🧪 Test Basic Commands
+      shell: pwsh
       run: |
-        echo "🧪 Running basic command tests..."
-        echo "📊 System uptime:"
-        uptime || echo "Uptime command not available"
-        echo "💾 Disk space:"
-        df -h . || echo "df command not available"
-        echo "🔍 Environment variables (filtered):"
-        env | grep -E "^(PATH|HOME|USER|RUNNER)" | head -10 || echo "Environment check failed"
+        Write-Host "🧪 Running basic command tests..."
+        Write-Host "📊 System uptime:"
+        try { Write-Host "$(Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object @{Name='Uptime'; Expression={(Get-Date) - $_.LastBootUpTime}})" } catch { Write-Host "Uptime check failed" }
+        Write-Host "💾 Disk space:"
+        try { Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object {$_.DriveType -eq 3} | Select-Object DeviceID, @{Name='Size(GB)'; Expression={[math]::Round($_.Size/1GB,2)}}, @{Name='FreeSpace(GB)'; Expression={[math]::Round($_.FreeSpace/1GB,2)}} } catch { Write-Host "Disk space check failed" }
+        Write-Host "🔍 Environment variables (filtered):"
+        try { Get-ChildItem env: | Where-Object {$_.Name -match "^(PATH|HOME|USER|RUNNER|COMPUTERNAME)"} | Select-Object -First 10 | Format-Table Name, Value } catch { Write-Host "Environment check failed" }
         
     - name: ✅ Test Complete
+      shell: pwsh
       run: |
-        echo "🎊 All tests completed successfully!"
-        echo "✨ Your self-hosted runner is ready to use!"
+        Write-Host "🎊 All tests completed successfully!"
+        Write-Host "✨ Your self-hosted runner is ready to use!"

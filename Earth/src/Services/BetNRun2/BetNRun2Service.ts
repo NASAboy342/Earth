@@ -116,7 +116,7 @@ export class BetNRun2Service {
         this.isRestartGameClockStarted = true;
       }
       if(this.timeToRestartGame()){
-        this.playerService.settle(-this.playerService.stake);
+        this.playerService.settle(0);
         this.proceedRestartGame();
       }
     }

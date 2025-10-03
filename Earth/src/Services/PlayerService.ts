@@ -1,4 +1,7 @@
+import { BetStatusEnum } from "../Enums/EarthApi/BetStatusEnum";
+import { DeductRequest } from "../models/EarthApi/DeductRequest";
 import { GetPlayerInfoRequest } from "../models/EarthApi/GetPlayerInfoRequest";
+import { SettleRequest } from "../models/EarthApi/SettleRequest";
 import { GameSettings } from "../models/GameSettings";
 import { PlayerInfo } from "../models/PlayerInfo";
 import { EarthApiService } from "./EarthApiService";
@@ -17,14 +20,35 @@ export class PlayerService {
         this.earthApiService = new EarthApiService();
     }
     
-    deduct(amount: number){
-        this.playerInfo.balance -= amount;
+    async deduct(amount: number){
+        let deductRequest = new DeductRequest();
+        deductRequest.username = this.playerInfo.username;
+        deductRequest.amount = amount;
+
+        let deductResponse = await this.earthApiService.Deduct(deductRequest);
+        if(deductResponse.errorCode !== 0){
+            console.error("Failed to deduct:", deductResponse.errorMessage);
+            return;
+        }
+        this.playerInfo.balance = deductResponse.responseData.balance;
         this.stake = amount;
         
     }
 
-    settle(amount: number){
-        this.playerInfo.balance += amount
+    async settle(amount: number){
+        let settleRequest = new SettleRequest();
+        settleRequest.username = this.playerInfo.username;
+        settleRequest.amount = amount;
+        settleRequest.stake = this.stake;
+        settleRequest.betStatus = amount > this.stake ? BetStatusEnum.Win : BetStatusEnum.Lose;
+
+        let settleResponse = await this.earthApiService.Settle(settleRequest);
+        if(settleResponse.errorCode !== 0){
+            console.error("Failed to settle:", settleResponse.errorMessage);
+            return;
+        }
+
+        this.playerInfo.balance = settleResponse.responseData.balance;
         this.resetStake();
     }
     resetStake() {

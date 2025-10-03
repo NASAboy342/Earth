@@ -28,9 +28,6 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import type { IGameThumbnailInfo } from '../models/gameThumnailInfo';
-import betNRunThumbnail from '../assets/GameThumnail/bet-n-run.png';
-import luckyDropThumbnail from '../assets/GameThumnail/lucky-drop.png';
 import { EarthApiService } from '../Services/EarthApiService';
 import type { IGetGameInfosResponse } from '../models/EarthApi/IGetGameInfosResponse';
 

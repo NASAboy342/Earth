@@ -62,6 +62,7 @@ class GameScene extends Phaser.Scene {
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.standingPlayer, 50, this);
     ImageHelper.createAnimationFromExistingPngSequenceTextures(AssetKeyEnum.runningPlayer, 50, this, 60);
     this.playerService = new PlayerService();
+    this.playerService.InitPlayerInfo("DemoPlayer");
     this.startNewGame();
   }
 

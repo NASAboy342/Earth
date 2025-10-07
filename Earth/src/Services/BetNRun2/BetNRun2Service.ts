@@ -27,6 +27,8 @@ export class BetNRun2Service {
   restartGameInSecond: number = 5;
   playerService: PlayerService;
   tileCount: number = 15;
+  isSyncedGameStep: boolean = true;
+  isSettleDone: boolean = true;
 
   
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
@@ -106,7 +108,7 @@ export class BetNRun2Service {
   }
   proceedRestartGame() {
     if(this.gameStep === GameStepEnum.gameOver){
-      this.gameStep = GameStepEnum.proceedStartNewGame;
+      this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
   gameOver() {
@@ -115,9 +117,11 @@ export class BetNRun2Service {
         this.restartGameClockStartAt = this.clockService.TimeSpentInSeconds
         this.isRestartGameClockStarted = true;
       }
-      if(this.timeToRestartGame()){
+      if(this.timeToRestartGame() && this.isSettleDone){
+        this.isSettleDone = false;
         this.playerService.settle(0);
         this.proceedRestartGame();
+        this.isSettleDone = true;
       }
     }
   }
@@ -127,14 +131,15 @@ export class BetNRun2Service {
   settleBet() {
     if(this.gameStep === GameStepEnum.settlingBet){
       if(this.player.isOnTargetTile()){
-        let isWin = this.binaryResultService.getPreCalculatedResult(this.player.currentTileIndex-1);
-        if(isWin){
-          this.setNextGameStep(GameStepEnum.betSettledWin);
-        }
-        else{
-          this.setNextGameStep(GameStepEnum.betSettledLose);
-        }
+        this.syncGameStepFromBetResult();
       } 
+    }
+  }
+  syncGameStepFromBetResult() {
+    if(this.isSyncedGameStep){
+      this.isSyncedGameStep = false;
+      // call to sync game step from server here
+      this.isSyncedGameStep = true;
     }
   }
   settleGameLose() {
@@ -184,7 +189,9 @@ export class BetNRun2Service {
     this.gameStep = newGameStep;
   }
   movePlayerToNextPosition() {
-    this.player.moveToNextTile(1);
+    if(this.gameStep === GameStepEnum.settlingBet){
+      this.player.moveToNextTile(1);
+    }
   }
   
   createBackground() {

@@ -3,6 +3,7 @@ export enum GameStepEnum {
     start,
     awaitingBet,
     awaitingRaiseBet,
+    raisingBet,
     settlingBet,
     betSettledWin,
     betSettledLose,

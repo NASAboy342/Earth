@@ -62,10 +62,10 @@ export class Player extends GameObjectBase {
         super.create();
     }
 
-    moveToNextTile(tiles: number) {
+    moveToNextTile(currentTile: number) {
         if (!this.isNotOnTargetTile()){
-            this.TargetTile = this.tiles[this.currentTileIndex + tiles]
-            this.currentTileIndex += tiles;
+            this.TargetTile = this.tiles[currentTile]
+            this.currentTileIndex = currentTile;
         }
     }
     getCurrentTileValue() {

@@ -5,8 +5,15 @@ import { Background } from "../../models/BetNRun2/Background";
 import { Crate, CrateTypeEnum } from "../../models/BetNRun2/Crate";
 import { Player } from "../../models/BetNRun2/Player";
 import { Tiles } from "../../models/BetNRun2/Tiles";
+import { BetAndRunLoginRequest } from "../../models/EarthApi/BetAndRunLoginRequest";
+import { GetBetResultRequest } from "../../models/EarthApi/GetBetResultRequest";
+import { MoveToNextTileRequest } from "../../models/EarthApi/MoveToNextTileRequest";
+import { PlaceBetRequest } from "../../models/EarthApi/PlaceBetRequest";
+import { SetNextGameStateRequest } from "../../models/EarthApi/SetNextGameStateRequest";
+import { SettleBetRequest } from "../../models/EarthApi/SettleBetRequest";
 import { BinaryResultService } from "../BinaryResultService";
 import { ClockService } from "../ClockService";
+import { EarthApiService } from "../EarthApiService";
 import type { PlayerService } from "../PlayerService";
 
 export class BetNRun2Service {
@@ -27,6 +34,14 @@ export class BetNRun2Service {
   restartGameInSecond: number = 5;
   playerService: PlayerService;
   tileCount: number = 15;
+  earthApiService: EarthApiService;
+  sessionId: string = "";
+  isSetNextGameDone: boolean = true;
+  isPlaceBetDone: boolean = true;
+  isSettleDone: boolean = true;
+  isSyncedGameStep: boolean = true;
+  isGetBetResultDone: boolean = true;
+  isMovePlayerToNextTileDone: boolean = true;
 
   
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
@@ -41,6 +56,24 @@ export class BetNRun2Service {
     this.playerService = playerService;
     
     this.spaceKey = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.earthApiService = new EarthApiService();
+
+    this.loginGameSession("DemoPlayer");
+  }
+  async loginGameSession(username: string) {
+    let request = new BetAndRunLoginRequest();
+    request.username = username;
+    let loginResponse = await this.earthApiService.BetAndRunLogin(request);
+    if(loginResponse.errorCode !== 0){
+      console.error("Failed to login:", loginResponse.errorMessage);
+      return;
+    }
+    this.gamePreviousStep = loginResponse.responseData.previousGameState;
+    this.gameStep = loginResponse.responseData.gameState;
+    this.sessionId = loginResponse.responseData.sessionId;
+    this.binaryResultService.stakeMultiplier = this.playerService.stake;
+    this.binaryResultService.tileCount = this.tileCount;
+    this.binaryResultService.reachableTile = loginResponse.responseData.currentTile;
   }
   update() {
     this.clockService.Tick();
@@ -66,9 +99,9 @@ export class BetNRun2Service {
   getPlayerX(): number {
     return this.player.x;
   }
-  cashOut() {
+  async cashOut() {
     if(this.gameStep === GameStepEnum.cashOut){
-      this.playerService.settle(this.playerService.stake + (this.playerService.stake * this.player.getCurrentTileValue()));
+      await this.GetSettleResult();
       this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
@@ -93,8 +126,8 @@ export class BetNRun2Service {
     }
   }
   proceedGameButton() {
-    this.raiseBet();
     this.placeBet();
+    this.raiseBet();
     this.proceedRestartGame();
   }
   destroyGameObjects() {
@@ -106,20 +139,40 @@ export class BetNRun2Service {
   }
   proceedRestartGame() {
     if(this.gameStep === GameStepEnum.gameOver){
-      this.gameStep = GameStepEnum.proceedStartNewGame;
+      this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
-  gameOver() {
+  async gameOver() {
     if(this.gameStep === GameStepEnum.gameOver){
       if(!this.isRestartGameClockStarted){
         this.restartGameClockStartAt = this.clockService.TimeSpentInSeconds
         this.isRestartGameClockStarted = true;
       }
       if(this.timeToRestartGame()){
-        this.playerService.settle(0);
-        this.proceedRestartGame();
+        await this.GetSettleResult();
       }
     }
+  }
+  async GetSettleResult() {
+    if(this.isSettleDone){
+          this.isSettleDone = false;
+  
+          let settleBetRequest = new SettleBetRequest();
+          settleBetRequest.username = this.playerService.playerInfo.username;
+  
+          let settleBetResponse = await this.earthApiService.SettleBet(settleBetRequest);
+  
+          if(settleBetResponse.errorCode !== 0){
+            console.error("Failed to settle bet:", settleBetResponse.errorMessage);
+            this.isSettleDone = true;
+            return;
+          }
+  
+          this.playerService.playerInfo.balance = settleBetResponse.responseData.balance;
+          this.playerService.resetStake();
+          this.proceedRestartGame();
+          this.isSettleDone = true;
+        }
   }
   timeToRestartGame(): boolean {
     return this.clockService.TimeSpentInSeconds - this.restartGameClockStartAt >= this.restartGameInSecond;
@@ -127,14 +180,30 @@ export class BetNRun2Service {
   settleBet() {
     if(this.gameStep === GameStepEnum.settlingBet){
       if(this.player.isOnTargetTile()){
-        let isWin = this.binaryResultService.getPreCalculatedResult(this.player.currentTileIndex-1);
-        if(isWin){
-          this.setNextGameStep(GameStepEnum.betSettledWin);
-        }
-        else{
-          this.setNextGameStep(GameStepEnum.betSettledLose);
-        }
+        this.syncGameStepFromBetResult();
       } 
+    }
+  }
+  async syncGameStepFromBetResult() {
+    if(this.isSyncedGameStep){
+      this.isSyncedGameStep = false;
+      
+      let getBetResultRequest = new GetBetResultRequest();
+      getBetResultRequest.username = this.playerService.playerInfo.username;
+
+      let getBetResultResponse = await this.earthApiService.GetBetResult(getBetResultRequest);
+
+      if(getBetResultResponse.errorCode !== 0){
+        console.error("Failed to get bet result:", getBetResultResponse.errorMessage);
+        this.isSyncedGameStep = true;
+        return;
+      }
+
+      this.gamePreviousStep = getBetResultResponse.responseData.previousGameState;
+      this.gameStep = getBetResultResponse.responseData.gameState;
+      this.binaryResultService.reachableTile = getBetResultResponse.responseData.currentTile;
+
+      this.isSyncedGameStep = true;
     }
   }
   settleGameLose() {
@@ -161,10 +230,28 @@ export class BetNRun2Service {
       this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
     }
   }
-  placeBet() {
+  async placeBet() {
     if(this.gameStep === GameStepEnum.awaitingBet){
-      this.playerService.deduct(this.playerService.stake);
-      this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
+      if(this.isPlaceBetDone){
+        this.isPlaceBetDone = false;
+        
+        let placeBetRequest = new PlaceBetRequest();
+        placeBetRequest.username = this.playerService.playerInfo.username;
+        placeBetRequest.amount = this.playerService.stake;
+
+        let placeBetResponse = await this.earthApiService.BetAndRunPlaceBet(placeBetRequest);
+
+        if(placeBetResponse.errorCode !== 0){
+          console.error("Failed to place bet:", placeBetResponse.errorMessage);
+          this.isPlaceBetDone = true;
+          return;
+        }
+
+        this.playerService.playerInfo.balance = placeBetResponse.responseData.balance;
+
+        this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
+        this.isPlaceBetDone = true;
+      }
     }
   }
   awaitForBet() {
@@ -173,18 +260,54 @@ export class BetNRun2Service {
       this.setNextGameStep(GameStepEnum.awaitingBet);
     }
   }
-  raiseBet() {
+  async raiseBet() {
     if (this.gameStep === GameStepEnum.awaitingRaiseBet){
-      this.setNextGameStep(GameStepEnum.settlingBet);
-      this.movePlayerToNextPosition();
+      await this.setNextGameStep(GameStepEnum.raisingBet);
+      await this.movePlayerToNextPosition();
+      await this.setNextGameStep(GameStepEnum.settlingBet);
     }
   }
-  setNextGameStep(newGameStep: GameStepEnum) {
-    this.gamePreviousStep = this.gameStep;
-    this.gameStep = newGameStep;
+  async setNextGameStep(newGameStep: GameStepEnum) {
+    if(this.isSetNextGameDone){
+      this.isSetNextGameDone = false;
+
+      let setNextGameStepRequest = new SetNextGameStateRequest();
+      setNextGameStepRequest.username = this.playerService.playerInfo.username;
+      setNextGameStepRequest.previousGameState = this.gamePreviousStep;
+      setNextGameStepRequest.nextGameState = newGameStep;
+
+      let setNextGameStepResponse = await this.earthApiService.SetNextGameState(setNextGameStepRequest);
+
+      if(setNextGameStepResponse.errorCode !== 0){
+        console.error("Failed to set next game step:", setNextGameStepResponse.errorMessage);
+        this.isSetNextGameDone = true;
+        return;
+      }
+
+      this.gamePreviousStep = setNextGameStepResponse.responseData.previousGameState;
+      this.gameStep = setNextGameStepResponse.responseData.gameState;
+      this.isSetNextGameDone = true;
+    }
   }
-  movePlayerToNextPosition() {
-    this.player.moveToNextTile(1);
+  async movePlayerToNextPosition() {
+    if(this.gameStep === GameStepEnum.raisingBet){
+      if(this.isMovePlayerToNextTileDone){
+        this.isMovePlayerToNextTileDone = false;
+
+        let moveToNextTileRequest = new MoveToNextTileRequest();
+        moveToNextTileRequest.username = this.playerService.playerInfo.username;
+        let moveToNextTileResponse = await this.earthApiService.MoveToNextTile(moveToNextTileRequest);
+
+        if(moveToNextTileResponse.errorCode !== 0){
+          console.error("Failed to move to next tile:", moveToNextTileResponse.errorMessage);
+          this.isMovePlayerToNextTileDone = true;
+          return;
+        }
+
+        this.player.moveToNextTile(moveToNextTileResponse.responseData.currentTile);
+        this.isMovePlayerToNextTileDone = true;
+      }
+    }
   }
   
   createBackground() {

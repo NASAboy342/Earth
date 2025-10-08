@@ -205,10 +205,10 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="difficalty-containner">
+      <!-- <div class="difficalty-containner">
         <div class="label">Difficalty</div>
         <div class="difficalty game-control-component"></div>
-      </div>
+      </div> -->
       <div class="game-button-containner">
         <div v-if="gameStep === GameStepEnum.awaitingBet" class="start-game-button game-button" @click="PressGameButton()">Start Game</div>
         <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" class="start-game-button game-button" @click="PressGameButton()">Raise Bet</div>

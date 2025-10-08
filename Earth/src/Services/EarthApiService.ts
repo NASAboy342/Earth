@@ -5,6 +5,8 @@ import type { DeductResponse } from "../models/EarthApi/DeductResponse";
 import type { GetBetResultRequest } from "../models/EarthApi/GetBetResultRequest";
 import type { GetBetResultResponse } from "../models/EarthApi/GetBetResultResponse";
 import type { GetPlayerInfoRequest } from "../models/EarthApi/GetPlayerInfoRequest";
+import type { GetTileValuesRequest } from "../models/EarthApi/GetTileValuesRequest";
+import type { GetTileValuesResponse } from "../models/EarthApi/GetTileValuesResponse";
 import type { IEarthApiResponse } from "../models/EarthApi/IEarthApiResponse";
 import type { IGetGameInfosResponse } from "../models/EarthApi/IGetGameInfosResponse";
 import type { MoveToNextTileRequest } from "../models/EarthApi/MoveToNextTileRequest";
@@ -122,6 +124,16 @@ export class EarthApiService {
               'Content-Type': 'application/json',
           },
           body: JSON.stringify(settleBetRequest)
+      });
+      return response.json();
+    }
+    async GetTileValues(getTileValuesRequest: GetTileValuesRequest) : Promise<IEarthApiResponse<GetTileValuesResponse>> {
+      const response = await fetch(`${this.baseUrl}/bet-and-run/get-tile-values`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(getTileValuesRequest)
       });
       return response.json();
     }

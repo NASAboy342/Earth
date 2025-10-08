@@ -4,7 +4,6 @@ import { Coin, CoinStatusEnum } from "./Coin";
 import { GameObjectBase } from "./GameObjectBase";
 
 export class Tiles extends GameObjectBase{
-    
     width: number = 279;
     height: number = 716;
     scaleMultiplier: number = 0.85;
@@ -68,5 +67,9 @@ export class Tiles extends GameObjectBase{
             this.coin.destroy(fromScene);
         }
         super.destroy(fromScene);
+    }
+
+    setCoinValue(value: number) {
+      this.coin.setValue(value);
     }
 }

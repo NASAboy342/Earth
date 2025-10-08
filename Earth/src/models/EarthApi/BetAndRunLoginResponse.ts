@@ -8,4 +8,5 @@ export class BetAndRunLoginResponse {
     currentTile: number = 0;
     previousGameState: GameStepEnum = GameStepEnum.none;
     gameState: GameStepEnum = GameStepEnum.none;
+    tileValues: number [] = [];   
 }

@@ -2,7 +2,7 @@ import type { ClockService } from "../../Services/ClockService";
 import { GameObjectBase } from "./GameObjectBase";
 
 export class Coin extends GameObjectBase{
-
+    
     scaleMultiplier: number = 0.80;
     coinValue: number = 0;
     displayNumber: Phaser.GameObjects.Text;
@@ -87,6 +87,11 @@ export class Coin extends GameObjectBase{
             this.coinStatus = newCoinstatus
         }
     }
+    setValue(value: number) {
+        this.coinValue = value;
+        this.displayNumber.setText('X' + value.toString());
+    }
+
 }
 
 export enum CoinStatusEnum{

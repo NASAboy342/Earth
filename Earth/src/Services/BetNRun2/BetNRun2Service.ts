@@ -7,6 +7,7 @@ import { Player } from "../../models/BetNRun2/Player";
 import { Tiles } from "../../models/BetNRun2/Tiles";
 import { BetAndRunLoginRequest } from "../../models/EarthApi/BetAndRunLoginRequest";
 import { GetBetResultRequest } from "../../models/EarthApi/GetBetResultRequest";
+import { GetTileValuesRequest } from "../../models/EarthApi/GetTileValuesRequest";
 import { MoveToNextTileRequest } from "../../models/EarthApi/MoveToNextTileRequest";
 import { PlaceBetRequest } from "../../models/EarthApi/PlaceBetRequest";
 import { SetNextGameStateRequest } from "../../models/EarthApi/SetNextGameStateRequest";
@@ -42,6 +43,8 @@ export class BetNRun2Service {
   isSyncedGameStep: boolean = true;
   isGetBetResultDone: boolean = true;
   isMovePlayerToNextTileDone: boolean = true;
+  isStartDone: boolean = true;
+  isSetTileValuesDone: boolean = false;
 
   
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
@@ -74,6 +77,7 @@ export class BetNRun2Service {
     this.binaryResultService.stakeMultiplier = this.playerService.stake;
     this.binaryResultService.tileCount = this.tileCount;
     this.binaryResultService.reachableTile = loginResponse.responseData.currentTile;
+    this.binaryResultService.tileValues = loginResponse.responseData.tileValues;
   }
   update() {
     this.clockService.Tick();
@@ -89,6 +93,7 @@ export class BetNRun2Service {
     this.cashOut();
     this.player.update();
     this.crates.forEach(crate => crate.update());
+    this.isNeedSetTileValues();
     this.tiles.forEach(tile => {
       tile.update();
       if (tile.coin && tile.coin.isClicked){
@@ -96,18 +101,27 @@ export class BetNRun2Service {
       }
     });
   }
+  isNeedSetTileValues() {
+    if(!this.isSetTileValuesDone){
+      if(this.binaryResultService && this.binaryResultService.tileValues.length > 0){
+        this.binaryResultService.tileValues.forEach((value, index) => {
+          this.tiles[index+1].setCoinValue(value);
+        });
+        this.isSetTileValuesDone = true;
+      }
+    }
+  }
   getPlayerX(): number {
     return this.player.x;
   }
   async cashOut() {
     if(this.gameStep === GameStepEnum.cashOut){
       await this.GetSettleResult();
-      this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
-  cashingOut() {
+  async cashingOut() {
     if(this.gameStep === GameStepEnum.cashingOut){
-      this.setNextGameStep(GameStepEnum.cashOut);
+      await this.setNextGameStep(GameStepEnum.cashOut);
     }
   }
   minusStake() {
@@ -120,9 +134,9 @@ export class BetNRun2Service {
       this.playerService.addStake();
     }
   }
-  proceedCashOut() {
+  async proceedCashOut() {
     if(this.gameStep === GameStepEnum.awaitingRaiseBet){
-      this.setNextGameStep(GameStepEnum.cashingOut)
+      await this.setNextGameStep(GameStepEnum.cashingOut)
     }
   }
   proceedGameButton() {
@@ -137,9 +151,9 @@ export class BetNRun2Service {
     this.crates.forEach(crate => crate.destroy(true));
     this.scene.sound.stopAll();
   }
-  proceedRestartGame() {
-    if(this.gameStep === GameStepEnum.gameOver){
-      this.setNextGameStep(GameStepEnum.proceedStartNewGame);
+  async proceedRestartGame() {
+    if(this.gameStep === GameStepEnum.gameOver || this.gameStep === GameStepEnum.cashOut){
+      await this.setNextGameStep(GameStepEnum.proceedStartNewGame);
     }
   }
   async gameOver() {
@@ -170,7 +184,7 @@ export class BetNRun2Service {
   
           this.playerService.playerInfo.balance = settleBetResponse.responseData.balance;
           this.playerService.resetStake();
-          this.proceedRestartGame();
+          await this.proceedRestartGame();
           this.isSettleDone = true;
         }
   }
@@ -206,12 +220,12 @@ export class BetNRun2Service {
       this.isSyncedGameStep = true;
     }
   }
-  settleGameLose() {
+  async settleGameLose() {
     if(this.gameStep === GameStepEnum.betSettledLose){
       this.spawnCrateOnPlayer(this.player.x, this.player.y);
       let crateThatIsOnPlayer = this.crates.find(crate => crate.crateId === CrateTypeEnum[CrateTypeEnum.spawnOnPlayer]);
       if(crateThatIsOnPlayer && crateThatIsOnPlayer.isOnGround()){
-        this.setNextGameStep(GameStepEnum.gameOver);
+        await this.setNextGameStep(GameStepEnum.gameOver);
       }
     }
   }
@@ -224,10 +238,10 @@ export class BetNRun2Service {
       this.isCrateOnPlayerSpawned = true;
     }
   }
-  settleGameWin() {
+  async settleGameWin() {
     if(this.gameStep === GameStepEnum.betSettledWin){
       this.player.TargetTile.isPlayerOnTile = true;
-      this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
+      await this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
     }
   }
   async placeBet() {
@@ -249,15 +263,20 @@ export class BetNRun2Service {
 
         this.playerService.playerInfo.balance = placeBetResponse.responseData.balance;
 
-        this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
+        await this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
         this.isPlaceBetDone = true;
       }
     }
   }
-  awaitForBet() {
+  async awaitForBet() {
     if(this.gameStep === GameStepEnum.start){
-      this.background.playBackgroundMusic();
-      this.setNextGameStep(GameStepEnum.awaitingBet);
+      if(this.isStartDone){
+        this.isStartDone = false;
+        this.background.playBackgroundMusic();
+        await this.setNextGameStep(GameStepEnum.awaitingBet);
+        this.isStartDone = true;
+      }
+      
     }
   }
   async raiseBet() {

@@ -6,6 +6,7 @@ export class BinaryResultService{
     stakeMultiplier: number = 0;
     tileCount: number = 0;
     reachableTile: number = 0;
+    tileValues: number[] = [];
 
     getPreCalculatedResult(currentTileIndex: number): boolean {
       return currentTileIndex < this.reachableTile
@@ -34,7 +35,7 @@ export class BinaryResultService{
     }
 
     getTileValue(tileCount: number): number[] {
-        let tileValues: number[] = [];
+        let tileValues: number[] = this.tileValues.length > 0 ? this.tileValues : [];
         tileValues.push(this.stakeMultiplyRate/100);
         for(let i = 1; i < tileCount; i++){
             tileValues.push(((tileValues[i-1]*100) *2)/100); 

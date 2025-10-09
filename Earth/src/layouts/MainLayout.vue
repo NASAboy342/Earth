@@ -6,6 +6,9 @@ import logoImg from '../assets/Logo.png';
 const route = useRoute();
 const logoDisplayType = ref<string>("");
 const screenWidth = ref<number>(window.innerWidth);
+const isMobileScreen = ref<boolean>(screenWidth.value < 768);
+const navBarStyle = ref<string>(isMobileScreen.value ? "mobile-nav-bar" : "desktop-nav-bar");
+const layoutStyle = ref<string>(isMobileScreen.value ? "mobile_layout" : "desktop_layout");
 
 watch(
   () => route.name, (newName, oldName) => {
@@ -19,7 +22,7 @@ watch(
 </script>
 
 <template>
-  <div class="layout">
+  <div :class="layoutStyle">
     <div
       :style="`display: ${logoDisplayType} ;`"
       class="logo-container flex justify-center"
@@ -27,7 +30,7 @@ watch(
       <img :src="logoImg" alt="PilotGaming Logo" class="w-36" />
     </div>
     <header>
-      <nav>
+      <nav :class="navBarStyle">
         <a href="/">Home</a>
         <a href="/about">About</a>
       </nav>
@@ -40,14 +43,25 @@ watch(
 </template>
 
 <style scoped>
-.layout {
+.desktop_layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   text-align: center;
+  height: 100%;
+}
+.mobile_layout {
+  @apply desktop_layout;
+  justify-content: start;
+  padding-top: 10px;
 }
 
-nav {
+.mobile-nav-bar {
+  padding: 5px;
+}
+.desktop-nav-bar {
   padding: 10px;
 }
-
 nav a {
   margin: 10px;
   text-decoration: none;
@@ -64,5 +78,8 @@ nav a.router-link-active {
 }
 .mobile-main{
   padding: 0px;
+}
+.logo-container{
+  margin-top: 10px;
 }
 </style>

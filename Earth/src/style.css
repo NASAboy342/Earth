@@ -45,6 +45,12 @@
   box-shadow: inset 0px 3px 5px var(--background-color);
   font-size: 24px;
 }
+.game-button-for-mobile{
+  @apply game-button;
+  min-width: 30px;
+  height: 30px;
+  font-size: 20px;
+}
 .game-sub-button{
   background-color: var(--sub-active-color);
   box-shadow: 0px 4px 0px var(--sub-active-color-side);
@@ -69,10 +75,23 @@
   box-shadow: inset 0px 0px 3px var(--background-color);
   margin-bottom: 0px;
 }
+.game-sub-button-for-mobile{
+  @apply game-sub-button;
+  min-width: 40px;
+  height: 25px;
+  font-size: 30px;
+}
 .game-control-component{
   background-color: var(--background-color);
   min-width: 50px;
   height: 50px;
+  border: 3px solid var(--game-controller-border-color);
+  border-radius: 15px;
+}
+.game-control-component-for-mobile{
+  background-color: var(--background-color);
+  min-width: 40px;
+  height: 40px;
   border: 3px solid var(--game-controller-border-color);
   border-radius: 15px;
 }

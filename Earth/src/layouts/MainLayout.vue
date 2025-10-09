@@ -5,10 +5,10 @@ import logoImg from '../assets/Logo.png';
 
 const route = useRoute();
 const logoDisplayType = ref<string>("");
+const screenWidth = ref<number>(window.innerWidth);
 
 watch(
-  () => route.name,
-  (newName, oldName) => {
+  () => route.name, (newName, oldName) => {
     if (newName === "Home") {
       logoDisplayType.value = "";
     } else {
@@ -33,7 +33,7 @@ watch(
       </nav>
     </header>
 
-    <main class="main">
+    <main :class="screenWidth < 768 ? 'mobile-main' : 'desktop-main'">
       <router-view />
     </main>
   </div>
@@ -58,8 +58,11 @@ nav a {
 nav a.router-link-active {
   color: var(--active-color);
 }
-.main{
+.desktop-main{
   padding: 50px;
   border-radius: 10px;
+}
+.mobile-main{
+  padding: 0px;
 }
 </style>

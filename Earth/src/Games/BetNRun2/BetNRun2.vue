@@ -28,6 +28,9 @@ const playerInfo = ref<PlayerInfo>();
 const stake = ref<number>(0);
 const isAddStakeButtonPress = ref<boolean>(false);
 const isMinusStakeButtonPress = ref<boolean>(false);
+const isMobileScreen = ref<boolean>(window.innerWidth < 768);
+const gameBetButton = ref<string>(isMobileScreen.value ? "start-game-button-for-mobile game-button-for-mobile" : "start-game-button game-button");
+const cashOutButton = ref<string>(isMobileScreen.value ? "cash-out-button-for-mobile game-button-for-mobile" : "cash-out-button game-button");
 
 const PressGameButton = () => {
   isGameButtonPress.value = true;
@@ -190,18 +193,18 @@ onUnmounted(() => {
 <template>
   <div>
     <div id="game-container" ref="gameContainer"></div>
-    <div class="game-control-panel">
+    <div :class="isMobileScreen ? 'game-control-panel-for-mobile' : 'game-control-panel'">
       <div class="game-control-panel-upper-section">
         <div class="bet-amount-containner">
         <div class="label">Bet amount</div>
-        <div class="bet-amount game-control-component">
+        <div :class="isMobileScreen ? 'bet-amount-for-mobile game-control-component-for-mobile' : 'bet-amount game-control-component'">
           <div class="bet-amount-number-section">
             <span>{{ playerInfo?.currency + " "}}</span> 
             <span>{{ stake }}</span>
           </div>
           <div class="stake-adjustment-containner">
-            <div class="stake-adjustment game-sub-button" @click="PressAddStakeButton()" >+</div>
-            <div class="stake-adjustment game-sub-button" @click="PressMinusStakeButton()">-</div>
+            <div :class="isMobileScreen ? 'stake-adjustment game-sub-button-for-mobile' : 'stake-adjustment game-sub-button'" @click="PressAddStakeButton()" >+</div>
+            <div :class="isMobileScreen ? 'stake-adjustment game-sub-button-for-mobile' : 'stake-adjustment game-sub-button'" @click="PressMinusStakeButton()">-</div>
           </div>
         </div>
       </div>
@@ -210,12 +213,12 @@ onUnmounted(() => {
         <div class="difficalty game-control-component"></div>
       </div> -->
       <div class="game-button-containner">
-        <div v-if="gameStep === GameStepEnum.awaitingBet" class="start-game-button game-button" @click="PressGameButton()">Start Game</div>
-        <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" class="start-game-button game-button" @click="PressGameButton()">Raise Bet</div>
-        <div v-else-if="gameStep === GameStepEnum.gameOver" class="start-game-button game-button" @click="PressGameButton()">Restart Game</div>
-        <div v-else class="start-game-button game-button">Raise Bet</div>
-        <div v-if="gameStep === GameStepEnum.awaitingRaiseBet" class="cash-out-button game-button" @click="PressCashOutButton()">Cash Out</div>
-        <div v-else class="cash-out-button game-button"></div>
+        <div v-if="gameStep === GameStepEnum.awaitingBet" :class="gameBetButton" @click="PressGameButton()">Start Game</div>
+        <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" :class="gameBetButton" @click="PressGameButton()">Raise Bet</div>
+        <div v-else-if="gameStep === GameStepEnum.gameOver" :class="gameBetButton" @click="PressGameButton()">Restart Game</div>
+        <div v-else :class="gameBetButton">Raise Bet</div>
+        <div v-if="gameStep === GameStepEnum.awaitingRaiseBet" :class="cashOutButton" @click="PressCashOutButton()">Cash Out</div>
+        <div v-else :class="cashOutButton"></div>
       </div>
       </div>
       <div class="game-control-panel-lower-section">
@@ -247,6 +250,17 @@ onUnmounted(() => {
   padding: 10px 30px;
   border-radius: 0px 0px 10px 10px;
 }
+.game-control-panel-for-mobile{
+  width: 100%;
+  height: 150px;
+  background-color: var(--game-controller-background-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 10px;
+  border-radius: 0px 0px 10px 10px;
+}
 .bet-amount-containner{
   
 }
@@ -256,6 +270,14 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   font-size: 24px;
+  font-weight: bold;
+}
+.bet-amount-for-mobile{
+  width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
   font-weight: bold;
 }
 .difficalty-containner{
@@ -272,6 +294,9 @@ onUnmounted(() => {
 }
 .start-game-button{
   width: 400px;
+}
+.start-game-button-for-mobile{
+  width: 200px;
 }
 .label{
   height: 30px;
@@ -307,6 +332,10 @@ onUnmounted(() => {
 }
 .cash-out-button{
   width: 200px;
+  height: 30px;
+}
+.cash-out-button-for-mobile{
+  width: 100px;
   height: 30px;
 }
 .stake-adjustment{

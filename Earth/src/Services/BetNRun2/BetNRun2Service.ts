@@ -264,6 +264,7 @@ export class BetNRun2Service {
         }
 
         this.playerService.playerInfo.balance = placeBetResponse.responseData.balance;
+        this.cashOutAmounts = placeBetResponse.responseData.cashOutAmount;
 
         await this.setNextGameStep(GameStepEnum.awaitingRaiseBet);
         this.isPlaceBetDone = true;

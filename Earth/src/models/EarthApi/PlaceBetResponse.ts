@@ -10,4 +10,5 @@ export class PlaceBetResponse {
     gameState: GameStepEnum = GameStepEnum.none;
     balance: number = 0;
     currency: string = "";
+    cashOutAmount: number = 0;
 }

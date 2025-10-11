@@ -31,6 +31,9 @@ const isMinusStakeButtonPress = ref<boolean>(false);
 const isMobileScreen = ref<boolean>(window.innerWidth < 768);
 const gameBetButton = ref<string>(isMobileScreen.value ? "start-game-button-for-mobile game-button-for-mobile" : "start-game-button game-button");
 const cashOutButton = ref<string>(isMobileScreen.value ? "cash-out-button-for-mobile game-button-for-mobile" : "cash-out-button game-button");
+const gameContainerStyle = ref<string>(isMobileScreen.value ? "game-container-for-mobile" : "game-container");
+const gameButtonContainner = ref<string>(isMobileScreen.value ? "game-button-containner-for-mobile" : "game-button-containner");
+const cashOutAmount = ref<number>(0);
 
 const PressGameButton = () => {
   isGameButtonPress.value = true;
@@ -67,6 +70,9 @@ class GameScene extends Phaser.Scene {
     this.playerService = new PlayerService();
     this.playerService.InitPlayerInfo("DemoPlayer");
     this.startNewGame();
+    if(isMobileScreen.value){
+      this.cameras.main.zoom = 0.7;
+    }
   }
 
   update() {
@@ -78,8 +84,9 @@ class GameScene extends Phaser.Scene {
     this.updateViewData();
   }
   checkIfToFollowPlayer() {
-    if(this.betNRun2Service.getPlayerX() > (gameContainer.value?.clientWidth ?? 1) / 2){
-      this.scrollCameraToX(this.betNRun2Service.getPlayerX() - (gameContainer.value?.clientWidth ?? 1) / 2);
+    let midScreenX = ((gameContainer.value?.clientWidth ?? 1) / 2) - (isMobileScreen.value ? 200 : 0);
+    if(this.betNRun2Service.getPlayerX() > midScreenX){
+      this.scrollCameraToX(this.betNRun2Service.getPlayerX() - midScreenX);
     } else {
       this.scrollCameraToX(0);
     }
@@ -114,6 +121,7 @@ class GameScene extends Phaser.Scene {
     gameStep.value = this.betNRun2Service.gameStep;
     playerInfo.value = this.playerService.playerInfo;
     stake.value = this.playerService.stake;
+    cashOutAmount.value = this.betNRun2Service.cashOutAmounts;
   }
 
   loadTextures() {
@@ -192,7 +200,7 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <div id="game-container" ref="gameContainer"></div>
+    <div id="game-container" :class="gameContainerStyle" ref="gameContainer"></div>
     <div :class="isMobileScreen ? 'game-control-panel-for-mobile' : 'game-control-panel'">
       <div class="game-control-panel-upper-section">
         <div class="bet-amount-containner">
@@ -212,12 +220,12 @@ onUnmounted(() => {
         <div class="label">Difficalty</div>
         <div class="difficalty game-control-component"></div>
       </div> -->
-      <div class="game-button-containner">
+      <div :class="gameButtonContainner">
         <div v-if="gameStep === GameStepEnum.awaitingBet" :class="gameBetButton" @click="PressGameButton()">Start Game</div>
         <div v-else-if="gameStep === GameStepEnum.awaitingRaiseBet" :class="gameBetButton" @click="PressGameButton()">Raise Bet</div>
         <div v-else-if="gameStep === GameStepEnum.gameOver" :class="gameBetButton" @click="PressGameButton()">Restart Game</div>
         <div v-else :class="gameBetButton">Raise Bet</div>
-        <div v-if="gameStep === GameStepEnum.awaitingRaiseBet" :class="cashOutButton" @click="PressCashOutButton()">Cash Out</div>
+        <div v-if="gameStep === GameStepEnum.awaitingRaiseBet" :class="cashOutButton" @click="PressCashOutButton()">{{ cashOutAmount }} Cash Out</div>
         <div v-else :class="cashOutButton"></div>
       </div>
       </div>
@@ -233,7 +241,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-#game-container {
+.game-container {
+  width: 100%;
+  height: 600px;
+  margin: auto;
+  background-color: aquamarine;
+}
+.game-container-for-mobile {
   width: 100%;
   height: 600px;
   margin: auto;
@@ -292,6 +306,10 @@ onUnmounted(() => {
   gap: 10px;
   align-items: end;
 }
+.game-button-containner-for-mobile{
+  @apply game-button-containner;
+  gap: 20px;
+}
 .start-game-button{
   width: 400px;
 }
@@ -335,8 +353,8 @@ onUnmounted(() => {
   height: 30px;
 }
 .cash-out-button-for-mobile{
-  width: 100px;
-  height: 30px;
+  @apply cash-out-button;
+  width: 200px;
 }
 .stake-adjustment{
 }

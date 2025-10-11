@@ -8,4 +8,5 @@ export class GetBetResultResponse {
     isGameOver: boolean = true;
     previousGameState: GameStepEnum = GameStepEnum.none;
     gameState: GameStepEnum = GameStepEnum.none;
+    cashOutAmount: number = 0;
 }

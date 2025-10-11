@@ -45,6 +45,7 @@ export class BetNRun2Service {
   isMovePlayerToNextTileDone: boolean = true;
   isStartDone: boolean = true;
   isSetTileValuesDone: boolean = false;
+  cashOutAmounts: number = 0;
 
   
   constructor(scene: Phaser.Scene, playerService: PlayerService) {
@@ -135,7 +136,7 @@ export class BetNRun2Service {
     }
   }
   async proceedCashOut() {
-    if(this.gameStep === GameStepEnum.awaitingRaiseBet){
+    if(this.gameStep === GameStepEnum.awaitingRaiseBet && this.player.currentTileIndex > 0){
       await this.setNextGameStep(GameStepEnum.cashingOut)
     }
   }
@@ -216,6 +217,7 @@ export class BetNRun2Service {
       this.gamePreviousStep = getBetResultResponse.responseData.previousGameState;
       this.gameStep = getBetResultResponse.responseData.gameState;
       this.binaryResultService.reachableTile = getBetResultResponse.responseData.currentTile;
+      this.cashOutAmounts = getBetResultResponse.responseData.cashOutAmount;
 
       this.isSyncedGameStep = true;
     }
